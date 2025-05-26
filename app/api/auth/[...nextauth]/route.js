@@ -120,21 +120,16 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-    // Send properties to the client
-    session.user = {
-      ...session.user,
-      id: token.id,
-      token: token.accessToken,
-      role: token.role,
-      active: token.active,
-      isVerified: token.isVerified
-    };
-    
-    // Enable cross-tab sync
-    session.sync = true;
-    
-    return session;
-  }
+      session.user.id = token.id;
+      session.user.token = token.accessToken;
+      session.user.role = token.role;
+      session.user.active = token.active;
+      session.user.isVerified = token.isVerified;
+            session.sync = true;
+
+      return session;
+      
+    },
   },
   pages: {
     signIn: '/login',
