@@ -16,7 +16,7 @@ export default function PackagesPage() {
   const [error, setError] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [content, setContent] = useState(null);
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const userId = session?.user?.id; // Get userId from session
   useEffect(() => {
       if (status === 'unauthenticated') {
