@@ -1,36 +1,42 @@
 'use client';
 
-import React, { Suspense, useCallback, useState } from 'react';
-import ReactFlow, {
-    addEdge,
-    Background,
-    Controls,
-    MiniMap,
-    ReactFlowProvider,
-    useEdgesState,
-    useNodesState,
-  } from 'reactflow';
-import 'reactflow/dist/style.css';
-import FlowBuilder from "../components/FlowBuilder";
+import React, { Suspense, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { getServerSession } from 'next-auth';
+import { useRouter } from 'next/navigation';
+import ReactFlow, {
+  addEdge,
+  Background,
+  Controls,
+  MiniMap,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import FlowBuilder from '../components/FlowBuilder';
 
-import { authOptions } from '../api/auth/[...nextauth]/route';
-import { redirect } from 'next/navigation';
+export default function ChatbotFlowPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-export default async function ChatbotFlowPage() {
-    const { data: session, status } = useSession();
- const sessions = await getServerSession(authOptions);
-  if (!sessions) {
-    redirect('/login?callbackUrl=/chatbot');
-  }
-  if (status === "loading") {
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login?callbackUrl=/chatbot');
+    }
+  }, [status, router]);
+
+  if (status === 'loading') {
     return <div>Loading...</div>;
   }
+
+  if (!session) {
+    return null; // Redirect will handle this
+  }
+
   return (
     <ReactFlowProvider>
       <Suspense fallback={<div>Loading...</div>}>
-      <FlowBuilder />
+        <FlowBuilder />
       </Suspense>
     </ReactFlowProvider>
   );
