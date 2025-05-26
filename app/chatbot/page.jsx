@@ -10,7 +10,7 @@ import ReactFlow, {
     useEdgesState,
     useNodesState,
   } from 'reactflow';
-
+import FlowBuilder from "../components/FlowBuilder";
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
