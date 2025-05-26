@@ -61,57 +61,54 @@ export const authOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account.provider === 'google') {
-        try {
-          // Check if user exists
-          const checkRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/check-user', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: user.email }),
-          });
+   async signIn({ user, account }) {
+  if (account.provider === 'google') {
+    try {
+      const checkRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/check-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email }),
+      });
 
-          const checkData = await checkRes.json();
+      const checkData = await checkRes.json();
 
-          if (checkRes.ok && checkData.user) {
-            if (!checkData.user.isVerified) {
-              // If user exists but isn't verified, deny sign-in
-              throw new Error('Please verify your email before logging in');
-            }
-            user.id = checkData.user.id;
-            user.token = checkData.token;
-            user.role = checkData.user.role;
-            user.active = checkData.user.active;
-            user.isVerified = checkData.user.isVerified;
-          } else {
-            // Register new Google user and trigger verification email
-            const registerRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/register', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                email: user.email,
-                name: user.name,
-                googleId: account.providerAccountId,
-                image: user.image,
-                provider: 'google',
-              }),
-            });
-
-            const registerData = await registerRes.json();
-            if (!registerRes.ok) {
-              throw new Error(registerData.message || 'Failed to register Google user');
-            }
-
-            // Since new users are unverified, deny sign-in and prompt verification
-            throw new Error('Account created! Please check your email to verify your account.');
-          }
-        } catch (error) {
-          console.error('Google sign-in error:', error);
-          return `/login?error=${encodeURIComponent(error.message)}`;
+      if (checkRes.ok && checkData.user) {
+        if (!checkData.user.isVerified) {
+          return `/login?error=${encodeURIComponent('Please verify your email before logging in')}`;
         }
+        user.id = checkData.user.id;
+        user.token = checkData.token;
+        user.role = checkData.user.role;
+        user.active = checkData.user.active;
+        user.isVerified = checkData.user.isVerified;
+        return true; // Allow sign-in
+      } else {
+        const registerRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: user.email,
+            name: user.name,
+            googleId: account.providerAccountId,
+            image: user.image,
+            provider: 'google',
+          }),
+        });
+
+        const registerData = await registerRes.json();
+        if (!registerRes.ok) {
+          return `/login?error=${encodeURIComponent(registerData.message || 'Failed to register Google user')}`;
+        }
+
+        return `/login?error=${encodeURIComponent('Account created! Please check your email to verify your account.')}`;
       }
-      return true;
-    },
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      return `/login?error=${encodeURIComponent(error.message)}`;
+    }
+  }
+  return true;
+},
     async jwt({ token, user }) {
       if (user) {
         token.accessToken = user.token;
