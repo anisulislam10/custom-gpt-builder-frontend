@@ -22,10 +22,10 @@ export default function ChatbotFlowPage() {
         await update();
         
         // If still unauthenticated after update, redirect
-        if (status === 'unauthenticated') {
-          window.location.href = '/login'; // Using window.location to ensure full page reload
-          return;
-        }
+        // if (status === 'unauthenticated') {
+        //   window.location.href = '/login'; // Using window.location to ensure full page reload
+        //   return;
+        // }
         
         setInitialized(true);
       } catch (error) {
