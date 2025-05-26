@@ -121,13 +121,17 @@ export default function FlowBuilder() {
   const searchParams = useSearchParams();
   const flowId = searchParams.get('flow'); 
   const [showEmbedModal, setShowEmbedModal] = useState(false);
-console.log('FlowBuilder mounted with flowId:', flowState.currentFlowId); // Debugging log
   useEffect(() => {
     if (session?.user?.id && flowId) {
       dispatch(loadFlow({ userId: session.user.id, flowId }));
     }
   }, [session?.user?.id, flowId, dispatch]);
-  
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+  if (status === "unauthenticated") {
+    redirect("/login");
+  }
   useEffect(() => {
     if (flowState.nodes.length > 0) {
       setNodes(flowState.nodes);
@@ -480,6 +484,7 @@ const handleSaveFlows = async () => {
     '--text': theme.colors.text,
     '--border': theme.colors.border,
   };
+  
 
   return (
     <div
