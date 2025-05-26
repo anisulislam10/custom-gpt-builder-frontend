@@ -18,7 +18,18 @@ export default function PackagesPage() {
   const [content, setContent] = useState(null);
   const { data: session, status } = useSession();
   const userId = session?.user?.id; // Get userId from session
+  useEffect(() => {
+      if (status === 'unauthenticated') {
+         update();
+      }
+    if (status === 'loading') {
+      update(); // Manually trigger session update
+    }
+  }, [status, update]);
 
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
   // Enhance API data with icons, accents, and popular flag
   const enhancePackages = (apiPackages) => {
     const icons = [<FaStar className="text-amber-400" />, <FaCrown className="text-purple-400" />, <FaGem className="text-teal-400" />];
@@ -132,10 +143,8 @@ export default function PackagesPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {
-          content ? <div>{content}</div> : <div>Loading...</div>
-        }
-        {/* Header */}
+       
+      
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -182,18 +191,7 @@ export default function PackagesPage() {
             <p className="font-medium">{error}</p>
           </motion.div>
         )}
- <iframe
-  src="https://custom-gpt-backend-sigma.vercel.app/api/chatbot/683341ac5a51f1ac4cbb4318/683307347fb0b329f0322ea5?domain=https%3A%2F%2Fanisdev.vercel.app"
-  style={{
-    width: '400px',
-    height: '600px',
-    border: 'none',
-    position: 'fixed',
-    bottom: '20px',
-    right: '20px'
-  }}
-  allowTransparency="true"
-/>
+
 
         {/* Packages Grid */}
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
@@ -231,6 +229,9 @@ export default function PackagesPage() {
                   <span className="text-5xl font-extrabold text-white">${pkg.price}</span>
                   <span className="text-gray-400 text-xl">/{pkg.billingPeriod}</span>
                   <p className="text-gray-400 mt-1">billed {pkg.billingPeriod === 'year' ? 'annually' : 'monthly'}</p>
+
+                  <p className="text-sm text-gray-500">Flows Allowed: {pkg.flowsAllowed}</p>
+
                 </div>
 
                 {/* Description */}
