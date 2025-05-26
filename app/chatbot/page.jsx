@@ -13,9 +13,17 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import FlowBuilder from "../components/FlowBuilder";
 import { useSession } from 'next-auth/react';
-export default function ChatbotFlowPage() {
-    const { data: session, status } = useSession();
+import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
+export default async function ChatbotFlowPage() {
+    const { data: session, status } = useSession();
+ const sessions = await getServerSession(authOptions);
+  if (!sessions) {
+    redirect('/login?callbackUrl=/chatbot');
+  }
   if (status === "loading") {
     return <div>Loading...</div>;
   }
