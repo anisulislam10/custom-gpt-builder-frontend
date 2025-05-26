@@ -1,32 +1,33 @@
 'use client';
-
-import React, { Suspense, useCallback, useEffect, useState } from 'react';
-import ReactFlow, {
-    addEdge,
-    Background,
-    Controls,
-    MiniMap,
-    ReactFlowProvider,
-    useEdgesState,
-    useNodesState,
-  } from 'reactflow';
-import 'reactflow/dist/style.css';
-import FlowBuilder from "../components/FlowBuilder";
 import { useSession } from 'next-auth/react';
+import { useEffect } from 'react';
+
 export default function ChatbotFlowPage() {
-    const { data: session, status } = useSession();
-useEffect(() => {
-     if (status === "loading") {
+  const { data: session, status, update } = useSession();
+
+  useEffect(() => {
+    if (status === 'loading') {
+      update(); // Manually trigger session update
+    }
+  }, [status, update]);
+
+  if (status === 'loading') {
     return <div>Loading...</div>;
   }
-  }, [status, session]);
-  if (status === "loading") {
-    return <div>Loading...</div>;
+
+  if (status === 'unauthenticated') {
+    return (
+      <div>
+        <p>Please sign in to access the Flow Builder.</p>
+        <button onClick={() => signIn()}>Sign In</button>
+      </div>
+    );
   }
+
   return (
     <ReactFlowProvider>
       <Suspense fallback={<div>Loading...</div>}>
-      <FlowBuilder />
+        <FlowBuilder />
       </Suspense>
     </ReactFlowProvider>
   );
