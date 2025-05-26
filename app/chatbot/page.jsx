@@ -3,22 +3,19 @@
 import React, { Suspense, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import ReactFlow, {
-  addEdge,
-  Background,
-  Controls,
-  MiniMap,
-  ReactFlowProvider,
-  useEdgesState,
-  useNodesState,
-} from 'reactflow';
+import ReactFlow, { ReactFlowProvider } from 'reactflow';
 import 'reactflow/dist/style.css';
 import FlowBuilder from '../components/FlowBuilder';
 
 export default function ChatbotFlowPage() {
-  const { data: session, status } = useSession();
-  console.log('Session:', session,status);
+  const { data: session, status, update } = useSession();
   const router = useRouter();
+
+  useEffect(() => {
+    // Force session refresh on mount
+    update();
+  }, [update]);
+
 
 
   if (status === 'loading') {
@@ -26,7 +23,7 @@ export default function ChatbotFlowPage() {
   }
 
   if (!session) {
-    return null; // Redirect will handle this
+    return null;
   }
 
   return (
