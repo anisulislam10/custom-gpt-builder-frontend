@@ -16,7 +16,9 @@ import { useSession } from 'next-auth/react';
 export default function ChatbotFlowPage() {
     const { data: session, status } = useSession();
 useEffect(() => {
-    
+     if (status === "loading") {
+    return <div>Loading...</div>;
+  }
   }, [status, session]);
   if (status === "loading") {
     return <div>Loading...</div>;
