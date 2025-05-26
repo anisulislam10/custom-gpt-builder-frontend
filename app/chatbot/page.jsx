@@ -1,23 +1,24 @@
 'use client';
-export const dynamic = 'force-dynamic';
-
-import { useSession } from 'next-auth/react';
+import { getServerSession } from 'next-auth/next';
 import { useEffect, Suspense } from 'react';
 import ReactFlow, { ReactFlowProvider } from 'reactflow';
-import FlowBuilder from "../components/FlowBuilder";
+import FlowBuilder from '../components/FlowBuilder';
+import { authOptions } from '../api/auth/[...nextauth]/route'; // Adjust path to your auth options
 
-export default function ChatbotFlowPage() {
-  const { data: session, status, update } = useSession();
+export default async function ChatbotFlowPage() {
+  // Fetch session on the server
+  const session = await getServerSession(authOptions);
 
   useEffect(() => {
+    // Optional: Client-side session refresh if needed
     const interval = setInterval(() => {
-      update();
-    }, 30000); // 30 seconds
+      // You can use a client-side update mechanism if necessary
+    }, 3000);
 
     return () => clearInterval(interval);
-  }, [update]);
+  }, []);
 
-  if (status === 'loading' || !session) {
+  if (!session) {
     return <div>Loading...</div>;
   }
 
