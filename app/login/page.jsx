@@ -8,7 +8,6 @@ import { FaEnvelope, FaLock, FaGoogle, FaPaperPlane } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../store/authSlice';
-import { Suspense } from 'react';
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
