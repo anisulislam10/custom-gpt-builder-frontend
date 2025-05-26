@@ -96,7 +96,7 @@ const themes = {
 export default function FlowBuilder() {
   const dispatch = useDispatch();
   const flowState = useSelector(state => state.flowBuilder);
-  const { data: session, status } = useSession();
+  const { data: session, status,update } = useSession();
   const [websiteDomain, setWebsiteDomainInput] = useState(''); // New state for website domain
   const [domainError, setDomainError] = useState(''); // New state for domain validation
  const [customTheme, setCustomTheme] = useState({
