@@ -1,6 +1,6 @@
 'use client';
 import { useSession } from 'next-auth/react';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import ReactFlow, {
     addEdge,
     Background,
@@ -10,6 +10,7 @@ import ReactFlow, {
     useEdgesState,
     useNodesState,
   } from 'reactflow';
+
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
