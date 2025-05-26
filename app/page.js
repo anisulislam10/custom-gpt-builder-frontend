@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import DashboardPage from "./dashboard/page";
 import LoginPage from "./login/page";
+import { Suspense } from "react";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -11,9 +12,13 @@ export default function Home() {
     return <div>Loading...</div>;
   }
 
-  if (session?.user?.name) {
+  if (session?.user) {
     return <DashboardPage />;
   }
 
-  return <LoginPage />;
+  return (
+    <Suspense fallback={<div>Loading login...</div>}>
+      <LoginPage />
+    </Suspense>
+  );
 }
