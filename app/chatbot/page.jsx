@@ -1,11 +1,22 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
-
+import ReactFlow, {
+    addEdge,
+    Background,
+    Controls,
+    MiniMap,
+    ReactFlowProvider,
+    useEdgesState,
+    useNodesState,
+  } from 'reactflow';
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
   useEffect(() => {
+      if (status === 'unauthenticated') {
+         update();
+      }
     if (status === 'loading') {
       update(); // Manually trigger session update
     }
@@ -15,14 +26,6 @@ export default function ChatbotFlowPage() {
     return <div>Loading...</div>;
   }
 
-  if (status === 'unauthenticated') {
-    return (
-      <div>
-        <p>Please sign in to access the Flow Builder.</p>
-        <button onClick={() => signIn()}>Sign In</button>
-      </div>
-    );
-  }
 
   return (
     <ReactFlowProvider>
