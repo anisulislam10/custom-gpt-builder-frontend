@@ -1,45 +1,31 @@
 'use client';
 
+import React, { Suspense, useCallback, useEffect, useState } from 'react';
+import ReactFlow, {
+    addEdge,
+    Background,
+    Controls,
+    MiniMap,
+    ReactFlowProvider,
+    useEdgesState,
+    useNodesState,
+  } from 'reactflow';
+import 'reactflow/dist/style.css';
+import FlowBuilder from "../components/FlowBuilder";
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-
 export default function ChatbotFlowPage() {
-  const { data: session, status, update } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    // Force session update on mount
-    update();
+    const { data: session, status } = useSession();
+useEffect(() => {
     
-    // Handle visibility changes
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        update();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [update]);
-
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
-
-  if (status === 'loading') {
-    return <div>Loading session...</div>;
+  }, [status, session]);
+  if (status === "loading") {
+    return <div>Loading...</div>;
   }
-
-  if (!session) {
-    return null;
-  }
-
   return (
     <ReactFlowProvider>
+      <Suspense fallback={<div>Loading...</div>}>
       <FlowBuilder />
+      </Suspense>
     </ReactFlowProvider>
   );
 }
