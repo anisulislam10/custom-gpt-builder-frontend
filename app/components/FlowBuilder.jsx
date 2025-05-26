@@ -96,8 +96,7 @@ const themes = {
 export default function FlowBuilder() {
   const dispatch = useDispatch();
   const flowState = useSelector(state => state.flowBuilder);
-  const { data: session, status } = useSession({
-  });
+  const { data: session, status } = useSession();
   const [websiteDomain, setWebsiteDomainInput] = useState(''); // New state for website domain
   const [domainError, setDomainError] = useState(''); // New state for domain validation
  const [customTheme, setCustomTheme] = useState({
@@ -129,9 +128,7 @@ export default function FlowBuilder() {
   if (status === "loading") {
     return <div>Loading...</div>;
   }
-  if (status === "unauthenticated") {
-    redirect("/login");
-  }
+ console.log("data",session)
   useEffect(() => {
     if (flowState.nodes.length > 0) {
       setNodes(flowState.nodes);
