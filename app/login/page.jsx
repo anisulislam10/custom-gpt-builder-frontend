@@ -1,13 +1,14 @@
 // app/login/page.js
 'use client';
 import { signIn } from 'next-auth/react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaEnvelope, FaLock, FaGoogle, FaPaperPlane } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../store/authSlice';
+import { Suspense } from 'react';
 
 export default function LoginPage() {
   const { data: session, status } = useSession();
@@ -149,6 +150,7 @@ export default function LoginPage() {
   };
 
   return (
+    <Suspense fallback={<div>Loading login...</div>}>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4">
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md animate-fade-in-up transform transition-all duration-500">
         <h1 className="text-3xl font-extrabold text-center text-blue-700 mb-6 tracking-wide animate-fade-in">
@@ -257,5 +259,6 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+    </Suspense>
   );
 }
