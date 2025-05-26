@@ -1,28 +1,25 @@
 'use client';
+export const dynamic = 'force-dynamic';
+
 import { useSession } from 'next-auth/react';
 import { useEffect, Suspense } from 'react';
-import ReactFlow, {
-   
-    ReactFlowProvider,
-   
-  } from 'reactflow';
+import ReactFlow, { ReactFlowProvider } from 'reactflow';
 import FlowBuilder from "../components/FlowBuilder";
+
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
-useEffect(() => {
-  if (status === 'unauthenticated' || status === 'loading') {
-    update(); // Trigger initial update
+  useEffect(() => {
+    const interval = setInterval(() => {
+      update();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [update]);
+
+  if (status === 'loading' || !session) {
+    return <div>Loading...</div>;
   }
-
-  const interval = setInterval(() => {
-    if (status === 'unauthenticated' || status === 'loading') {
-      update(); // Periodically check session
-    }
-  }, 5000); // Every 5 seconds
-
-  return () => clearInterval(interval); // Cleanup on unmount
-}, [status, update]);
 
   return (
     <ReactFlowProvider>
