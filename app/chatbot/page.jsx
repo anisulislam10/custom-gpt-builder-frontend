@@ -1,7 +1,11 @@
 'use client';
 import { useSession } from 'next-auth/react';
 import { useEffect, Suspense } from 'react';
-import ReactFlow, { ReactFlowProvider } from 'reactflow';
+import ReactFlow, {
+   
+    ReactFlowProvider,
+   
+  } from 'reactflow';
 import FlowBuilder from "../components/FlowBuilder";
 
 export default function ChatbotFlowPage() {
@@ -11,7 +15,7 @@ export default function ChatbotFlowPage() {
     // Periodically refresh session every 30 seconds
     const interval = setInterval(() => {
       update();
-    }, 3000); // 30 seconds
+    }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
   }, [update]);
