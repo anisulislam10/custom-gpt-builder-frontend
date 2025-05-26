@@ -120,27 +120,7 @@ export default function FlowBuilder() {
   const searchParams = useSearchParams();
   const flowId = searchParams.get('flow'); 
   const [showEmbedModal, setShowEmbedModal] = useState(false);
- useEffect(() => {
-  if (status === 'unauthenticated' || status === 'loading') {
-    update(); // Trigger initial update
-  }
 
-  const interval = setInterval(() => {
-    if (status === 'unauthenticated' || status === 'loading') {
-      update(); // Periodically check session
-    }
-  }, 5000); // Every 5 seconds
-
-  return () => clearInterval(interval); // Cleanup on unmount
-}, [status, update]);
-  useEffect(() => {
-    if (session?.user?.id && flowId) {
-      dispatch(loadFlow({ userId: session.user.id, flowId }));
-    }
-  }, [session?.user?.id, flowId, dispatch]);
-  if (status === "loading") {
-    return <div>Loading...</div>;
-  }
  console.log("data",session)
   useEffect(() => {
     if (flowState.nodes.length > 0) {
