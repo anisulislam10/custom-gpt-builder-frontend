@@ -1,4 +1,3 @@
-// app/api/auth/[...nextauth]/route.js
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
@@ -21,7 +20,7 @@ export const authOptions = {
             throw new Error('Email and password are required');
           }
 
-          const res = await fetch('http://localhost:5000/api/auth/login', {
+          const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -64,7 +63,7 @@ export const authOptions = {
    async signIn({ user, account }) {
   if (account.provider === 'google') {
     try {
-      const checkRes = await fetch('http://localhost:5000/api/auth/check-user', {
+      const checkRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/check-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: user.email }),
@@ -83,7 +82,7 @@ export const authOptions = {
         user.isVerified = checkData.user.isVerified;
         return true; // Allow sign-in
       } else {
-        const registerRes = await fetch('http://localhost:5000/api/auth/register', {
+        const registerRes = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -120,16 +119,21 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.user.id = token.id;
-      session.user.token = token.accessToken;
-      session.user.role = token.role;
-      session.user.active = token.active;
-      session.user.isVerified = token.isVerified;
-            session.sync = true;
-
-      return session;
-      
-    },
+    // Send properties to the client
+    session.user = {
+      ...session.user,
+      id: token.id,
+      token: token.accessToken,
+      role: token.role,
+      active: token.active,
+      isVerified: token.isVerified
+    };
+    
+    // Enable cross-tab sync
+    session.sync = true;
+    
+    return session;
+  }
   },
   pages: {
     signIn: '/login',
