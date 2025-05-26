@@ -1,15 +1,13 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { Provider } from "react-redux";
-import { store } from "@/store";
+
+import './globals.css';
 
 export function AppProviders({ children }) {
   return (
-    <SessionProvider>
-      <Provider store={store}>
+    <SessionProvider refetchInterval={5 * 60} refetchOnWindowFocus={true}>
         {children}
-      </Provider>
     </SessionProvider>
   );
 }
