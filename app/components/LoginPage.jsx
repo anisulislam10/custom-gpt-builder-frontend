@@ -63,7 +63,7 @@ export default function LoginPagee() {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/check-user', {
+      const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/check-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -130,7 +130,7 @@ export default function LoginPagee() {
     setMessage('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/auth/resend-verification', {
+      const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

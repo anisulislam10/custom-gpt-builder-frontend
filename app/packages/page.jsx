@@ -41,7 +41,7 @@ export default function PackagesPage() {
   const fetchPackages = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get('http://localhost:5000/api/package/getpackages');
+      const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/package/getpackages');
       setPackages(enhancePackages(data));
       setError('');
     } catch (err) {
@@ -54,7 +54,7 @@ export default function PackagesPage() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/protected/protected-content', {
+        const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/protected/protected-content', {
           data: { userId },
         });
         setContent(data.message);
@@ -98,7 +98,7 @@ export default function PackagesPage() {
         throw new Error('Stripe failed to initialize');
       }
   
-      const { data } = await axios.post('http://localhost:5000/api/package/stripe/create-checkout-session', {
+      const { data } = await axios.post('https://custom-gpt-backend-sigma.vercel.app/api/package/stripe/create-checkout-session', {
         packageId: selectedPackage,
         userId: session?.user?.id, // Pass userId to the backend
 
@@ -183,7 +183,7 @@ export default function PackagesPage() {
           </motion.div>
         )}
  <iframe
-  src="http://localhost:5000/api/chatbot/683341ac5a51f1ac4cbb4318/683307347fb0b329f0322ea5?domain=https%3A%2F%2Fanisdev.vercel.app"
+  src="https://custom-gpt-backend-sigma.vercel.app/api/chatbot/683341ac5a51f1ac4cbb4318/683307347fb0b329f0322ea5?domain=https%3A%2F%2Fanisdev.vercel.app"
   style={{
     width: '400px',
     height: '600px',
