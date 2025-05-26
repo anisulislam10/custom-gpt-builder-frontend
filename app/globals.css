@@ -1,0 +1,21 @@
+
+@import "tailwindcss";
+
+
+
+.chatbot-preview {
+    font-size: 14px;
+  }
+  .chatbot-preview input,
+  .chatbot-preview button {
+    padding: 6px;
+  }
+  @media (max-width: 400px) {
+    .chatbot-preview {
+      font-size: 12px;
+    }
+    .chatbot-preview input,
+    .chatbot-preview button {
+      padding: 4px;
+    }
+  }
