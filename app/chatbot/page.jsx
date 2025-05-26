@@ -9,17 +9,24 @@ import FlowBuilder from "../components/FlowBuilder";
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      update();
-    }, 3000); // 30 seconds
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.visibilityState === 'visible') {
+      update(); // Trigger session update when tab becomes visible
+    }
+  };
 
-    return () => clearInterval(interval);
-  }, [update]);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 
-  if (status === 'loading' || !session) {
-    return <div>Loading...</div>;
+  // Initial update if unauthenticated or loading
+  if (status === 'unauthenticated' || status === 'loading') {
+    update();
   }
+
+  return () => {
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+}, [status, update]);
 
   return (
     <ReactFlowProvider>
