@@ -18,18 +18,7 @@ export default function PackagesPage() {
   const [content, setContent] = useState(null);
   const { data: session, status, update } = useSession();
   const userId = session?.user?.id; // Get userId from session
-  useEffect(() => {
-      if (status === 'unauthenticated') {
-         update();
-      }
-    if (status === 'loading') {
-      update(); // Manually trigger session update
-    }
-  }, [status, update]);
 
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
   // Enhance API data with icons, accents, and popular flag
   const enhancePackages = (apiPackages) => {
     const icons = [<FaStar className="text-amber-400" />, <FaCrown className="text-purple-400" />, <FaGem className="text-teal-400" />];
@@ -81,12 +70,17 @@ export default function PackagesPage() {
   }, [userId]);
 
   // ✅ Only conditional rendering here
-  if (status === "loading") {
-    return <p>Loading session...</p>;
-  }
+  useEffect(() => {
+      if (status === 'unauthenticated') {
+         update();
+      }
+    if (status === 'loading') {
+      update(); // Manually trigger session update
+    }
+  }, [status, update]);
 
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
+  if (status === 'loading') {
+    return <div>Loading...</div>;
   }
 
   const handleSelectPackage = (pkg) => {
