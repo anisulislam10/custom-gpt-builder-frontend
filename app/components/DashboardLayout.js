@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import {
   FiHome,
   FiMessageSquare,
@@ -102,8 +103,12 @@ const isSignuupPage = pathname === "/signup";
       return <div>Loading...</div>;
     }
   
-    if (!session?.user?.name) {
-      return <LoginPage />;
+    if (!session?.user) {
+      return (
+        <Suspense fallback={<div>Loading login...</div>}>
+              <LoginPage />
+            </Suspense>
+      ) 
     }
 
   return (
