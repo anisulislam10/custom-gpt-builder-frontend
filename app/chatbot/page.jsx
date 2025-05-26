@@ -12,7 +12,7 @@ export default function ChatbotFlowPage() {
   useEffect(() => {
     const interval = setInterval(() => {
       update();
-    }, 30000); // 30 seconds
+    }, 3000); // 30 seconds
 
     return () => clearInterval(interval);
   }, [update]);
