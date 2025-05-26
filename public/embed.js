@@ -8,7 +8,7 @@
     // Load required styles
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `http://localhost:3000/styles/chatbot.css`; // You'll create this CSS file
+    link.href = `https://custom-gpt-builder-frontend.vercel.app/styles/chatbot.css`; // You'll create this CSS file
     document.head.appendChild(link);
   
     // Load React and ReactDOM (or bundle them if possible)
@@ -28,7 +28,7 @@
   
     // Load widget bundle (you'll need to create this)
     const widgetScript = document.createElement('script');
-    widgetScript.src = `http://localhost:3000//widget.bundle.js`;
+    widgetScript.src = `https://custom-gpt-builder-frontend.vercel.app/widget.bundle.js`;
     widgetScript.onload = () => {
       window.renderChatbotWidget(container.id, { flowId, userId, theme });
     };

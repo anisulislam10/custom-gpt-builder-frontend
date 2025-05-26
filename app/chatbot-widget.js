@@ -30,7 +30,7 @@ window.initChatbotWidget = function(config) {
     
     // Create iframe
     const iframe = document.createElement('iframe');
-    iframe.src = `http://localhost:3000/chatbot-widget?flowId=${config.flowId}&theme=${encodeURIComponent(JSON.stringify(config.theme))}`;
+    iframe.src = `https://custom-gpt-builder-frontend.vercel.app/chatbot-widget?flowId=${config.flowId}&theme=${encodeURIComponent(JSON.stringify(config.theme))}`;
     iframe.style.border = 'none';
     iframe.style.flexGrow = '1';
     iframe.style.width = '100%';
@@ -64,7 +64,7 @@ window.initChatbotWidget = function(config) {
     
     // Handle messages from iframe
     window.addEventListener('message', (event) => {
-      if (event.origin !== 'http://localhost:3000/') return;
+      if (event.origin !== 'https://custom-gpt-builder-frontend.vercel.app/') return;
       
       if (event.data.type === 'resize') {
         widget.style.height = event.data.height + 'px';

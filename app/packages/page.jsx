@@ -157,7 +157,7 @@ export default function PackagesPage() {
         <div>
           
         {/* <iframe
-          src="$http://localhost:3000/widget/118348517020939070586/682c7e24b707fc071614dfbe"
+          src="$https://custom-gpt-builder-frontend.vercel.app/widget/118348517020939070586/682c7e24b707fc071614dfbe"
           width="100%"
           height="500px"
           frameborder="0"
