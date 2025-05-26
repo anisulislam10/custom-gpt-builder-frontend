@@ -10,19 +10,15 @@ import FlowBuilder from "../components/FlowBuilder";
 export default function ChatbotFlowPage() {
   const { data: session, status, update } = useSession();
 
- useEffect(() => {
-  if (status === 'unauthenticated' || status === 'loading') {
-    update(); // Trigger initial update
-  }
-
-  const interval = setInterval(() => {
-    if (status === 'unauthenticated' || status === 'loading') {
-      update(); // Periodically check session
+  useEffect(() => {
+      if (status === 'unauthenticated') {
+         update();
+      }
+    if (status === 'loading') {
+      update(); // Manually trigger session update
     }
-  }, 5000); // Every 5 seconds
+  }, [status, update]);
 
-  return () => clearInterval(interval); // Cleanup on unmount
-}, [status, update]);
   if (status === 'loading') {
     return <div>Loading...</div>;
   }
