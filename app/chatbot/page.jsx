@@ -1,20 +1,27 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { ReactFlowProvider } from 'reactflow';
-import 'reactflow/dist/style.css';
-import FlowBuilder from '../components/FlowBuilder';
+import { useEffect } from 'react';
 
 export default function ChatbotFlowPage() {
-  const { data: session, status } = useSession();
-  const [client, setClient] = useState(false);
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    setClient(true);
-  }, []);
+    // Force session update on mount
+    update();
+    
+    // Handle visibility changes
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        update();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [update]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -22,8 +29,12 @@ export default function ChatbotFlowPage() {
     }
   }, [status, router]);
 
-  if (!client || status === 'loading') {
-    return <div>Loading...</div>;
+  if (status === 'loading') {
+    return <div>Loading session...</div>;
+  }
+
+  if (!session) {
+    return null;
   }
 
   return (
