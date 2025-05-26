@@ -17,13 +17,14 @@ import FlowBuilder from '../components/FlowBuilder';
 
 export default function ChatbotFlowPage() {
   const { data: session, status } = useSession();
+  console.log('Session:', session);
   const router = useRouter();
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login?callbackUrl=/chatbot');
-    }
-  }, [status, router]);
+  //   if (status === 'unauthenticated') {
+  //     router.push('/login?callbackUrl=/chatbot');
+  //   }
+  // }, [status, router]);
 
   if (status === 'loading') {
     return <div>Loading...</div>;
