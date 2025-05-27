@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -98,7 +98,13 @@ export default function DashboardLayout({ children }) {
     }
   
     if (!session?.user?.id) {
-      return <LoginPage />;
+    return(
+        <Suspense fallback={<div>Loading...</div>}>
+        
+        <LoginPage />
+        
+        </Suspense>
+        )
     }
 
   return (
