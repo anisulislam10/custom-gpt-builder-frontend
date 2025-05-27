@@ -24,6 +24,7 @@ import {
   saveFlow,
   updateFlow,
   loadFlows,
+  loadFlow,
   setEdges as setEdgesAction,
   setFlowName as setStoreFlowName,
 } from '../../store/flowBuilderSlice';
@@ -551,7 +552,11 @@ const onDrop = useCallback(
       });
     }
   }, [dispatch, session, flowId, flowState, nodes, edges, flowName, websiteDomain, theme]);
-
+useEffect(() => {
+  if (session?.user?.id && flowId) {
+    dispatch(loadFlow({ userId: session.user.id, flowId }));
+  }
+}, [session?.user?.id, flowId, dispatch]);
   // Undo/Redo functionality
   const handleUndo = useCallback(() => {
     if (history.past.length === 0) return;
