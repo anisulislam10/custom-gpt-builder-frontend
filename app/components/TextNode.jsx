@@ -1,24 +1,22 @@
-// app/components/TextNode.jsx
 'use client';
 
 import React from 'react';
 import { Handle, Position } from 'reactflow';
 
 export default function TextNode({ data }) {
-  const handleChange = (value) => {
-    if (data.onChange) {
-      data.onChange(value);
-    } else {
-      console.warn(`onChange is not defined for TextNode with id ${data.id || 'unknown'}`);
-    }
-  };
+  const { label = '', onChange } = data;
 
   return (
     <div className="p-4 bg-white rounded shadow-md border w-64">
       <div className="font-bold mb-2">Text Message</div>
       <textarea
-        value={data.label || ''}
-        onChange={(e) => handleChange(e.target.value)}
+        value={label}
+        onChange={(e) => {
+          console.log('TextNode label changed:', e.target.value);
+          if (onChange) {
+            onChange(e.target.value);
+          }
+        }}
         placeholder="Enter message"
         className="p-1 border rounded w-full mb-2 h-20"
       />

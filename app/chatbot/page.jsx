@@ -1,32 +1,30 @@
 'use client';
-export const dynamic = 'force-dynamic';
-
-import { useSession } from 'next-auth/react';
-import { Suspense, useEffect } from 'react';
-import { ReactFlowProvider } from 'reactflow';
+import { useSession, signIn } from 'next-auth/react';
+import { useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import ReactFlow, { ReactFlowProvider } from 'reactflow';
 import FlowBuilder from '../components/FlowBuilder';
 
 export default function ChatbotFlowPage() {
-  const { data: session, status, update } = useSession();
+  const { data: session, status } = useSession();
 
-  // Optional: Trigger session update periodically to avoid tab focus dependency
-  useEffect(() => {
-     window.location.reload(); // Programmatically refresh the page
-// Cleanup on unmount
-  }, []);
-
-
-
+useEffect(() => {
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    // Force fetch session
+    fetch('/api/auth/session')
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.user) {
+          signIn('credentials', { callbackUrl: '/chatbot' });
+        }
+      });
   }
+}, [status]);
 
   return (
     <ReactFlowProvider>
       <Suspense fallback={<div>Loading...</div>}>
         <FlowBuilder />
-        {/* Optional: Button to trigger manual refresh */}
-    
       </Suspense>
     </ReactFlowProvider>
   );

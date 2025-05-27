@@ -14,7 +14,7 @@ export default function PaymentSuccess() {
     const verifyPayment = async () => {
       try {
         const { data } = await axios.get(
-          `https://custom-gpt-backend-sigma.vercel.app/api/stripe/verify-payment?session_id=${sessionId}`
+          `http://localhost:5000/api/stripe/verify-payment?session_id=${sessionId}`
         );
         setPaymentStatus(data.status);
       } catch (error) {

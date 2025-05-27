@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Suspense } from 'react';
 import {
   FiHome,
   FiMessageSquare,
@@ -43,9 +42,7 @@ export default function DashboardLayout({ children }) {
   const { data: session, status } = useSession();
   
   const pathname = usePathname();
-  const isLoginPage = pathname === "/login";
-const isChatbotPage = pathname===('/chatbot') 
-const isSignuupPage = pathname === "/signup";
+
 
 
 // Check if the current page is a chatbot page
@@ -70,10 +67,7 @@ const isSignuupPage = pathname === "/signup";
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  if (isLoginPage || 
-    isChatbotPage || isSignuupPage ) {
-    return <AppProviders>{children}</AppProviders>;
-  }
+
  
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -87,10 +81,10 @@ const isSignuupPage = pathname === "/signup";
     { name: 'Dashboard', icon: <FiHome />, path: '/dashboard' },
     { name: 'Flows', icon: <FiZap />, path: '/flows' },
     { name: 'Chatbot', icon: <FiMessageSquare />, path: '/chatbot' },
-    { name: 'Templates', icon: <FiFolder />, path: '/templates' },
-    { name: 'Integrations', icon: <FiGlobe />, path: '/integrations' },
-    { name: 'Analytics', icon: <FiBarChart2 />, path: '/analytics' },
-    { name: 'Team', icon: <FiUsers />, path: '/team' },
+    { name: 'Templates', icon: <FiFolder />, path: '#' },
+    { name: 'Integrations', icon: <FiGlobe />, path: '#' },
+    { name: 'Analytics', icon: <FiBarChart2 />, path: '#' },
+    { name: 'Team', icon: <FiUsers />, path: '#' },
     { name: 'Settings', icon: <FiSettings />, path: '/settings' },
   ];
 
@@ -103,12 +97,8 @@ const isSignuupPage = pathname === "/signup";
       return <div>Loading...</div>;
     }
   
-    if (!session?.user) {
-      return (
-        <Suspense fallback={<div>Loading login...</div>}>
-              <LoginPage />
-            </Suspense>
-      ) 
+    if (!session?.user?.id) {
+      return <LoginPage />;
     }
 
   return (
@@ -220,7 +210,7 @@ const isSignuupPage = pathname === "/signup";
           {/* Bottom section */}
           <div className="p-4 border-t border-gray-200 space-y-2">
             <Link
-              href="/help"
+              href="#"
               className={`flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-50 transition-all
                 ${!sidebarOpen ? 'justify-center' : ''}`}
             >
@@ -292,10 +282,10 @@ const isSignuupPage = pathname === "/signup";
                   <p className="text-sm font-medium text-gray-800">{session?.user?.name || 'User'}</p>
                   <p className="text-xs text-gray-500 truncate">{session?.user?.email || 'Admin'}</p>
                 </div>
-                <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <Link href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <FiUser className="mr-3 text-gray-500" /> Your Profile
                 </Link>
-                <Link href="/settings" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <Link href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <FiSettings className="mr-3 text-gray-500" /> Settings
                 </Link>
                 <button 
