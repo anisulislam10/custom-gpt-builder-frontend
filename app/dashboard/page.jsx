@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
  const fetchSubscription = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/package/getpackage?userId=${session.user?.id}`);
+      const { data } = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/package/getpackage?userId=${session.user?.id}`);
         setUserSubscription(data.userPackage || null);
     } catch (err) {
       console.error('Failed to fetch subscription:', err);

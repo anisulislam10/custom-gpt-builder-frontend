@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchSmtpConfig = createAsyncThunk(
   'smtp/fetchConfig',
   async (userId) => {
-    const response = await fetch(`http://localhost:5000/api/smtp/get/${userId}`);
+    const response = await fetch(`https://custom-gpt-backend-sigma.vercel.app/api/smtp/get/${userId}`);
     if (!response.ok) throw new Error('Failed to fetch SMTP config');
     return await response.json();
   }

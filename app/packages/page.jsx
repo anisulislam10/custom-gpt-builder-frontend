@@ -53,7 +53,7 @@ export default function PackagesPage() {
   const fetchPackages = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get('http://localhost:5000/api/package/getpackages');
+      const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/package/getpackages');
       setPackages(enhancePackages(data));
       setError('');
     } catch (err) {
@@ -66,7 +66,7 @@ export default function PackagesPage() {
 
   const fetchSubscription = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/api/package/getpackage?userId=${session.user?.id}`);
+      const { data } = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/package/getpackage?userId=${session.user?.id}`);
         setUserSubscription(data.userPackage || null);
     } catch (err) {
       console.error('Failed to fetch subscription:', err);
@@ -76,7 +76,7 @@ export default function PackagesPage() {
 
   const fetchContent = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/protected/protected-content', {
+      const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/protected/protected-content', {
         params: { userId },
       });
       setContent(data.message);
@@ -95,7 +95,7 @@ export default function PackagesPage() {
   //     let subscription = null;
 
   //     while (attempts < maxAttempts) {
-  //       const { data } = await axios.get('http://localhost:5000/api/subscription/get-subscription', {
+  //       const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/subscription/get-subscription', {
   //         params: { userId },
   //       });
   //       subscription = data.subscription;
@@ -144,7 +144,7 @@ export default function PackagesPage() {
         throw new Error('Stripe failed to initialize');
       }
 
-      const { data } = await axios.post('http://localhost:5000/api/package/stripe/create-checkout-session', {
+      const { data } = await axios.post('https://custom-gpt-backend-sigma.vercel.app/api/package/stripe/create-checkout-session', {
         packageId: selectedPackage,
         userId,
       });
