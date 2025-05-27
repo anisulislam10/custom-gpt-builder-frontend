@@ -87,6 +87,7 @@ export default function DashboardLayout({ children }) {
     { name: 'Team', icon: <FiUsers />, path: '#' },
     { name: 'Settings', icon: <FiSettings />, path: '/settings' },
   ];
+  
 
   const handleLogout = async () => {
             dispatch(clearCredentials());
