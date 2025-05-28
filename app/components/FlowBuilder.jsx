@@ -41,7 +41,6 @@ import ChatbotPreview from './ChatbotPreview';
 import ApiConfigModal from './APiConfig';
 import SmtpModal from './Smtp';
 import EmbedWidget from './EmbedWidget';
-import FlowSelector from './FlowSelector';
 import {
   FiMessageCircle,
   FiZap,
@@ -279,50 +278,54 @@ export default function FlowBuilder() {
 
   // Sync Redux state with local state, preserving positions
 useEffect(() => {
-  if (flowState.nodes) {
-    setNodes((prevNodes) => {
-      if (JSON.stringify(prevNodes) === JSON.stringify(flowState.nodes)) {
-        return prevNodes; // Skip update if nodes are identical
-      }
-      return flowState.nodes.map((reduxNode) => {
-        const existingNode = prevNodes.find((n) => n.id === reduxNode.id);
+  // Only update local state if Redux state has changed
+  if (JSON.stringify(nodes) !== JSON.stringify(flowState.nodes)) {
+    setNodes(
+      flowState.nodes.map((reduxNode) => {
+        const existingNode = nodes.find((n) => n.id === reduxNode.id);
         return {
           ...reduxNode,
           position: existingNode?.position || reduxNode.position || { x: 0, y: 0 },
           data: {
             ...reduxNode.data,
-            ...(existingNode?.data || {}),
             onChange: (value) => {
               console.log('onChange called for node:', reduxNode.id, 'value:', value);
               const dataUpdate = typeof value === 'object' ? value : { label: value };
               dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
             },
-            onFieldsChange:
-              ['form', 'custom'].includes(reduxNode.type)
-                ? (fieldsOrOptions) => {
-                    console.log('onFieldsChange called for node:', reduxNode.id, 'fields/options:', fieldsOrOptions);
-                    const dataUpdate =
-                      reduxNode.type === 'form' ? { fields: fieldsOrOptions } : { options: fieldsOrOptions };
-                    dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
-                  }
-                : undefined,
-            onApiConfigChange:
-              reduxNode.type === 'aiinput'
-                ? (newConfig) => {
-                    console.log('onApiConfigChange called for node:', reduxNode.id, 'config:', newConfig);
-                    dispatch(updateNode({ id: reduxNode.id, data: { apiConfig: newConfig } }));
-                  }
-                : undefined,
+            onFieldsChange: ['form', 'custom'].includes(reduxNode.type)
+              ? (fieldsOrOptions) => {
+                  console.log('onFieldsChange called for node:', reduxNode.id, 'fields/options:', fieldsOrOptions);
+                  const dataUpdate = reduxNode.type === 'form' ? { fields: fieldsOrOptions } : { options: fieldsOrOptions };
+                  dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
+                }
+              : undefined,
+            onApiConfigChange: reduxNode.type === 'aiinput'
+              ? (newConfig) => {
+                  console.log('onApiConfigChange called for node:', reduxNode.id, 'config:', newConfig);
+                  dispatch(updateNode({ id: reduxNode.id, data: { apiConfig: newConfig } }));
+                }
+              : undefined,
             onSubmit: (data) => console.log(`${reduxNode.type} submitted:`, data),
           },
         };
-      });
-    });
+      })
+    );
   }
-  setEdges(flowState.edges || []);
-  setFlowName(flowState.flowName || '');
-  setWebsiteDomainInput(flowState.websiteDomain || '');
+
+  if (JSON.stringify(edges) !== JSON.stringify(flowState.edges)) {
+    setEdges(flowState.edges || []);
+  }
+
+  if (flowName !== flowState.flowName) {
+    setFlowName(flowState.flowName || '');
+  }
+
+  if (websiteDomain !== flowState.websiteDomain) {
+    setWebsiteDomainInput(flowState.websiteDomain || '');
+  }
 }, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges, dispatch]); // Handle node changes (including position updates)
+
 const handleNodesChange = useCallback(
   (changes) => {
     onNodesChange(changes);
