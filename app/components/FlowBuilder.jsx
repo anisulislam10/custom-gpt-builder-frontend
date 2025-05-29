@@ -278,54 +278,66 @@ export default function FlowBuilder() {
 
   // Sync Redux state with local state, preserving positions
 useEffect(() => {
-  // Only update local state if Redux state has changed
-  if (JSON.stringify(nodes) !== JSON.stringify(flowState.nodes)) {
-    setNodes(
-      flowState.nodes.map((reduxNode) => {
-        const existingNode = nodes.find((n) => n.id === reduxNode.id);
-        return {
+  console.log('useEffect: Syncing flowState to local state', {
+    reduxNodes: flowState.nodes,
+    reduxEdges: flowState.edges,
+    flowName: flowState.flowName,
+    websiteDomain: flowState.websiteDomain,
+  });
+
+  if (flowState.nodes) {
+    setNodes((prevNodes) => {
+      const updatedNodes = flowState.nodes.map((reduxNode) => {
+        const existingNode = prevNodes.find((n) => n.id === reduxNode.id);
+        const nodeType = reduxNode.type;
+
+        // Find template to ensure default data
+        const template = nodeTemplates.find((t) => t.type === nodeType);
+        const defaultData = template ? { ...template.data } : {};
+
+        console.log(`Processing node ID: ${reduxNode.id}, Type: ${nodeType}, API Data:`, reduxNode.data);
+
+        const newNode = {
           ...reduxNode,
           position: existingNode?.position || reduxNode.position || { x: 0, y: 0 },
           data: {
+            ...defaultData,
             ...reduxNode.data,
             onChange: (value) => {
-              console.log('onChange called for node:', reduxNode.id, 'value:', value);
+              console.log(`onChange called for node ${reduxNode.id}, value:`, value);
               const dataUpdate = typeof value === 'object' ? value : { label: value };
               dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
             },
-            onFieldsChange: ['form', 'custom'].includes(reduxNode.type)
+            onFieldsChange: ['form', 'custom'].includes(nodeType)
               ? (fieldsOrOptions) => {
-                  console.log('onFieldsChange called for node:', reduxNode.id, 'fields/options:', fieldsOrOptions);
-                  const dataUpdate = reduxNode.type === 'form' ? { fields: fieldsOrOptions } : { options: fieldsOrOptions };
+                  console.log(`onFieldsChange called for node ${reduxNode.id}, fields/options:`, fieldsOrOptions);
+                  const dataUpdate = nodeType === 'form' ? { fields: fieldsOrOptions } : { options: fieldsOrOptions };
                   dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
                 }
               : undefined,
-            onApiConfigChange: reduxNode.type === 'aiinput'
+            onApiConfigChange: nodeType === 'aiinput'
               ? (newConfig) => {
-                  console.log('onApiConfigChange called for node:', reduxNode.id, 'config:', newConfig);
+                  console.log(`onApiConfigChange called for node ${reduxNode.id}, config:`, newConfig);
                   dispatch(updateNode({ id: reduxNode.id, data: { apiConfig: newConfig } }));
                 }
               : undefined,
-            onSubmit: (data) => console.log(`${reduxNode.type} submitted:`, data),
+            onSubmit: (data) => console.log(`${nodeType} submitted:`, data),
           },
         };
-      })
-    );
+
+        console.log(`Node ${reduxNode.id} after adding callbacks:`, newNode.data);
+        return newNode;
+      });
+
+      console.log('Updated nodes:', updatedNodes);
+      return updatedNodes;
+    });
   }
 
-  if (JSON.stringify(edges) !== JSON.stringify(flowState.edges)) {
-    setEdges(flowState.edges || []);
-  }
-
-  if (flowName !== flowState.flowName) {
-    setFlowName(flowState.flowName || '');
-  }
-
-  if (websiteDomain !== flowState.websiteDomain) {
-    setWebsiteDomainInput(flowState.websiteDomain || '');
-  }
-}, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges, dispatch]); // Handle node changes (including position updates)
-
+  setEdges(flowState.edges || []);
+  setFlowName(flowState.flowName || '');
+  setWebsiteDomainInput(flowState.websiteDomain || '');
+}, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges, dispatch]);
 const handleNodesChange = useCallback(
   (changes) => {
     onNodesChange(changes);
@@ -657,12 +669,12 @@ useEffect(() => {
 
   // Toggle sidebar
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-useEffect(() => {
-  setNodes(flowState.nodes || []);
-  setEdges(flowState.edges || []);
-  setFlowName(flowState.flowName || '');
-  setWebsiteDomainInput(flowState.websiteDomain || '');
-}, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges]);
+// useEffect(() => {
+//   setNodes(flowState.nodes || []);
+//   setEdges(flowState.edges || []);
+//   setFlowName(flowState.flowName || '');
+//   setWebsiteDomainInput(flowState.websiteDomain || '');
+// }, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges]);
  
 return (
     <div

@@ -34,7 +34,7 @@ export const saveFlow = createAsyncThunk(
   'flow/saveFlow',
   async ({ userId, nodes, edges, flowName, websiteDomain }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`https://custom-gpt-backend-sigma.vercel.app/api/flow/${userId}`, {
+      const response = await axios.post(`http://localhost:5000/api/flow/${userId}`, {
         nodes,
         edges,
         flowName: flowName || `Flow-${Date.now()}`,
@@ -54,7 +54,7 @@ export const loadFlows = createAsyncThunk(
   'flow/loadFlows',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/flow/${userId}`);
+      const response = await axios.get(`http://localhost:5000/api/flow/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -65,7 +65,7 @@ export const loadFlows2 = createAsyncThunk(
   'flow/loadFlows2',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/flow/user/${userId}`);
+      const response = await axios.get(`http://localhost:5000/api/flow/user/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -77,7 +77,7 @@ export const loadFlow = createAsyncThunk(
   'flow/loadFlow',
   async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/flow/${userId}/${flowId}`);
+      const response = await axios.get(`http://localhost:5000/api/flow/${userId}/${flowId}`);
       // Normalize edges data
       const edges = (response.data.edges || []).map(edge => ({
         ...edge,
@@ -97,7 +97,7 @@ export const updateFlow = createAsyncThunk(
   'flow/updateFlow',
   async ({ userId, flowId, nodes, edges, websiteDomain }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://custom-gpt-backend-sigma.vercel.app/api/flow/${userId}/${flowId}`, {
+      const response = await axios.put(`http://localhost:5000/api/flow/${userId}/${flowId}`, {
         nodes,
         edges,
         websiteDomain
@@ -113,7 +113,7 @@ export const deleteFlow = createAsyncThunk(
   'flow/deleteFlow',
   async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://custom-gpt-backend-sigma.vercel.app/api/flow/${userId}/${flowId}`);
+      await axios.delete(`http://localhost:5000/api/flow/${userId}/${flowId}`);
       return flowId;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -134,6 +134,7 @@ const flowBuilderSlice = createSlice({
     },
 updateNode: (state, action) => {
   const { id, data, position } = action.payload;
+  console.log('updateNode reducer called:', { id, data, position });
   const nodeIndex = state.nodes.findIndex((node) => node.id === id);
   if (nodeIndex >= 0) {
     state.nodes[nodeIndex] = {
@@ -142,8 +143,11 @@ updateNode: (state, action) => {
         ...state.nodes[nodeIndex].data,
         ...data,
       },
-      ...(position && { position }), // Update position if provided
+      ...(position && { position }),
     };
+    console.log(`Node ${id} updated in state:`, state.nodes[nodeIndex]);
+  } else {
+    console.error(`Node with id ${id} not found in state`, state.nodes);
   }
 },
     addNode: (state, action) => {
