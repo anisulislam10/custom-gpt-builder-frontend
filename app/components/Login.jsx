@@ -1,20 +1,22 @@
 'use client';
 import { signIn } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
 import { useSession } from 'next-auth/react';
 import { useDispatch } from 'react-redux';
 import { setCredentials } from '../../store/authSlice';
-import { toast } from 'react-hot-toast';
+import { Toaster, toast } from 'react-hot-toast';
+import ReCAPTCHA from 'react-google-recaptcha';
 
-export default function LoginPagee() {
+export default function LoginPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const error = searchParams.get('error'); // Get error from query params
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,6 +24,16 @@ export default function LoginPagee() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState(null);
+
+  const recaptchaRef = useRef(null);
+
+  // Handle errors from query params
+  useEffect(() => {
+    if (error) {
+      toast.error(decodeURIComponent(error));
+    }
+  }, [error]);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -39,22 +51,27 @@ export default function LoginPagee() {
           },
         })
       );
-      router.push(callbackUrl); // Use callbackUrl from query params
+      router.push(callbackUrl);
     }
   }, [status, session, router, dispatch, callbackUrl]);
 
   const handleLogin = async () => {
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await signIn('credentials', {
         email,
         password,
+        recaptchaToken,
         redirect: false,
       });
 
       if (res?.ok) {
         toast.success('Login successful! Redirecting...');
-        // No need to push here; useSession will handle redirect
       } else {
         toast.error(res?.error || 'Invalid email or password');
       }
@@ -62,6 +79,8 @@ export default function LoginPagee() {
       toast.error('An error occurred during login');
     } finally {
       setIsLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current.reset();
     }
   };
 
@@ -81,12 +100,17 @@ export default function LoginPagee() {
       toast.error('Please enter your email address');
       return;
     }
+    if (!recaptchaToken) {
+      toast.error('Please complete the reCAPTCHA verification');
+      return;
+    }
+
     setIsLoading(true);
     try {
       const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: forgotPasswordEmail }),
+        body: JSON.stringify({ email: forgotPasswordEmail, recaptchaToken }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -100,11 +124,18 @@ export default function LoginPagee() {
       toast.error('An error occurred while sending the reset email');
     } finally {
       setIsLoading(false);
+      setRecaptchaToken(null);
+      recaptchaRef.current.reset();
     }
+  };
+
+  const onReCAPTCHAChange = (token) => {
+    setRecaptchaToken(token);
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 px-4">
+      <Toaster position="top-right" reverseOrder={false} />
       <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md animate-fade-in-up transform transition-all duration-500">
         <h1 className="text-3xl font-extrabold text-center text-blue-700 mb-6 tracking-wide animate-fade-in">
           👋 Welcome Back!
@@ -126,6 +157,12 @@ export default function LoginPagee() {
                   value={forgotPasswordEmail}
                 />
               </div>
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey="YOUR_RECAPTCHA_SITE_KEY" // Replace with your Google reCAPTCHA site key
+                size="invisible"
+                onChange={onReCAPTCHAChange}
+              />
               <button
                 onClick={handleForgotPassword}
                 disabled={isLoading}
@@ -169,6 +206,13 @@ export default function LoginPagee() {
                   value={password}
                 />
               </div>
+
+              <ReCAPTCHA
+                ref={recaptchaRef}
+                sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY} // Replace with your Google reCAPTCHA site key
+                size="invisible"
+                onChange={onReCAPTCHAChange}
+              />
 
               <button
                 onClick={handleLogin}
