@@ -121,7 +121,7 @@ const ApiConfigModal = ({ isOpen, onClose, apiConfig, onSave }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
             <input
               type="password"
-              value={config?.deepseek.apiKey}
+              value={config?.deepseek?.apiKey || ''}
               onChange={(e) => handleChange('deepseek', 'apiKey', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="your-deepseek-api-key"
@@ -129,7 +129,7 @@ const ApiConfigModal = ({ isOpen, onClose, apiConfig, onSave }) => {
 
             <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
             <select
-              value={config?.deepseek.model ?? ''}
+              value={config?.deepseek?.model ?? ''}
               onChange={(e) => handleChange('deepseek', 'model', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
             >
@@ -144,7 +144,7 @@ const ApiConfigModal = ({ isOpen, onClose, apiConfig, onSave }) => {
             <label className="block text-sm font-medium text-gray-700 mb-1">API Key</label>
             <input
               type="password"
-              value={config?.gemini.apiKey ?? ''}
+              value={config?.gemini?.apiKey ?? ''}
               onChange={(e) => handleChange('gemini', 'apiKey', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
               placeholder="your-gemini-api-key"
@@ -152,7 +152,7 @@ const ApiConfigModal = ({ isOpen, onClose, apiConfig, onSave }) => {
 
             <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
             <select
-              value={config?.gemini.model}
+              value={config?.gemini.apiKey ?? ''}
               onChange={(e) => handleChange('gemini', 'model', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
             >
