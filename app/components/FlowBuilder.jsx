@@ -1075,7 +1075,7 @@ return (
           />
           <Controls
             className="shadow-lg rounded-lg overflow-hidden bg-[var(--card)] backdrop-blur-md"
-            style={{ right: 10, bottom: 20, border: `1px solid ${theme.colors.border}`, boxShadow: `0 4px 12px ${theme.colors.glow}` }}
+            style={{  bottom: 20, border: `1px solid ${theme.colors.border}`, boxShadow: `0 4px 12px ${theme.colors.glow}` }}
             aria-label="Canvas controls"
           />
           <Background
