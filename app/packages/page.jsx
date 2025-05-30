@@ -60,7 +60,7 @@ export default function PackagesPage() {
       setPackages(enhancePackages(data));
       setError('');
     } catch (err) {
-      setError('Failed to fetch packages');
+      // setError('Failed to fetch packages');
       console.error(err);
     } finally {
       setIsLoading(false);
@@ -106,7 +106,7 @@ console.log('Fetched content:', data);
         setError('Payment verification failed. Please contact support.');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to verify payment');
+      // setError(err.response?.data?.error || 'Failed to verify payment');
       console.error('Verify checkout error:', err);
     } finally {
       setIsLoading(false);
@@ -147,10 +147,10 @@ console.log('Fetched content:', data);
       });
 
       if (error) {
-        setError(error.message);
+        // setError(error.message);
       }
     } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Payment processing failed');
+      // setError(err.response?.data?.error || err.message || 'Payment processing failed');
       console.error('Payment error:', err);
     } finally {
       setIsProcessingPayment(false);
@@ -187,7 +187,7 @@ console.log('Fetched content:', data);
           </motion.p>
         </motion.div>
 
-        {error && (
+        {/* {error && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -196,7 +196,7 @@ console.log('Fetched content:', data);
           >
             <p className="font-medium">{error}</p>
           </motion.div>
-        )}
+        )} */}
 
         {userSubscription && (
           <motion.div
