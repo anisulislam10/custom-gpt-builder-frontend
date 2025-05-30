@@ -1,3 +1,4 @@
+'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
@@ -17,7 +18,9 @@ export default function PackagesPage() {
   const [error, setError] = useState('');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [content, setContent] = useState(null);
+  
   const [userSubscription, setUserSubscription] = useState(null);
+  
   const { data: session, status } = useSession();
   const userId = session?.user?.id;
   const router = useRouter();
@@ -42,6 +45,9 @@ export default function PackagesPage() {
       fetchSubscription();
       fetchContent();
     }
+
+    // Check for session_id in URL (post-checkout redirect)
+  
   }, [userId]);
 
   const fetchPackages = async () => {
@@ -61,7 +67,11 @@ export default function PackagesPage() {
   const fetchSubscription = async () => {
     try {
       const { data } = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/package/getpackage?userId=${session.user?.id}`);
+      if(data){
       setUserSubscription(data.userPackage || null);
+
+      } 
+      
     } catch (err) {
       console.error('Failed to fetch subscription:', err);
       setUserSubscription(null);
@@ -80,8 +90,42 @@ export default function PackagesPage() {
     }
   };
 
+  // const verifyCheckoutSession = async (sessionId) => {
+  //   try {
+  //     setIsLoading(true);
+  //     // Poll subscription status
+  //     let attempts = 0;
+  //     const maxAttempts = 5;
+  //     let subscription = null;
+
+  //     while (attempts < maxAttempts) {
+  //       const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/subscription/get-subscription', {
+  //         params: { userId },
+  //       });
+  //       subscription = data.subscription;
+  //       if (subscription && subscription.status === 'active') {
+  //         break;
+  //       }
+  //       await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
+  //       attempts++;
+  //     }
+
+  //     if (subscription && subscription.status === 'active') {
+  //       setUserSubscription(subscription);
+  //       setError('');
+  //       router.replace('/packages'); // Clear session_id from URL
+  //     } else {
+  //       setError('Subscription activation failed. Please try again or contact support.');
+  //     }
+  //   } catch (err) {
+  //     setError('Failed to verify checkout session');
+  //     console.error('Verify checkout error:', err);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSelectPackage = (pkg) => {
-    console.log(`Clicked Select for package: ${pkg.name} (ID: ${pkg.packageId})`);
     if (userSubscription) {
       setError('You are already subscribed to a package. Please cancel your current subscription to choose a new one.');
       return;
@@ -132,40 +176,6 @@ export default function PackagesPage() {
     );
   }
 
-  // const verifyCheckoutSession = async (sessionId) => {
-  //   try {
-  //     setIsLoading(true);
-  //     // Poll subscription status
-  //     let attempts = 0;
-  //     const maxAttempts = 5;
-  //     let subscription = null;
-
-  //     while (attempts < maxAttempts) {
-  //       const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/subscription/get-subscription', {
-  //         params: { userId },
-  //       });
-  //       subscription = data.subscription;
-  //       if (subscription && subscription.status === 'active') {
-  //         break;
-  //       }
-  //       await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds
-  //       attempts++;
-  //     }
-
-  //     if (subscription && subscription.status === 'active') {
-  //       setUserSubscription(subscription);
-  //       setError('');
-  //       router.replace('/packages'); // Clear session_id from URL
-  //     } else {
-  //       setError('Subscription activation failed. Please try again or contact support.');
-  //     }
-  //   } catch (err) {
-  //     setError('Failed to verify checkout session');
-  //     console.error('Verify checkout error:', err);
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-indigo-900 py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -207,7 +217,7 @@ export default function PackagesPage() {
             className="bg-indigo-900/50 border-l-4 border-indigo-500 text-indigo-200 p-4 mb-10 rounded-lg shadow-md text-center"
           >
             <p className="font-medium">
-              You are currently subscribed to the {userSubscription.name}.{' '}
+              You are currently subscribed to the {userSubscription.name} .{' '}
               <Link href="#" className="underline hover:text-indigo-100">
                 Manage your subscription
               </Link>
@@ -215,7 +225,7 @@ export default function PackagesPage() {
           </motion.div>
         )}
 
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto">
           {packages.map((pkg, index) => (
             <motion.div
               key={pkg.packageId}
@@ -223,24 +233,23 @@ export default function PackagesPage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.1, duration: 0.5 }}
               whileHover={{ y: -5 }}
-              className={`relative bg-gray-800 rounded-2xl shadow-xl overflow-visible transition-all duration-500 z-10 ${
+              className={`relative bg-gray-800 rounded-2xl shadow-xl overflow-hidden transition-all duration-500 ${
                 selectedPackage === pkg.packageId
-                  ? 'ring-4 ring-indigo-400 scale-[1.02] shadow-2xl'
+                  ? 'ring-4 ring-indigo-400 scale-[1.03] shadow-2xl'
                   : userSubscription?.packageId === pkg.packageId
                   ? 'ring-4 ring-green-400'
                   : pkg.popular
                   ? 'ring-2 ring-purple-400'
                   : 'border border-gray-700'
               }`}
-              style={{ position: 'relative', zIndex: selectedPackage === pkg.packageId ? 20 : 10 }}
             >
               {pkg.popular && (
-                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-bold py-2 text-center uppercase tracking-wider z-20">
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-sm font-bold py-2 text-center uppercase tracking-wider">
                   Most Popular
                 </div>
               )}
               {userSubscription?.packageId === pkg.packageId && (
-                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold py-2 text-center uppercase tracking-wider z-20">
+                <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-sm font-bold py-2 text-center uppercase tracking-wider">
                   Active Plan
                 </div>
               )}
@@ -269,7 +278,7 @@ export default function PackagesPage() {
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
                   disabled={userSubscription !== null}
-                  className={`w-full py-4 px-6 rounded-xl font-bold text-lg text-white transition-all shadow-md relative z-30 ${
+                  className={`w-full py-4 px-6 rounded-xl font-bold text-lg text-white transition-all shadow-md ${
                     userSubscription?.packageId === pkg.packageId
                       ? 'bg-green-600 cursor-not-allowed'
                       : selectedPackage === pkg.packageId
