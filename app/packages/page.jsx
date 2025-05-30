@@ -39,16 +39,22 @@ export default function PackagesPage() {
     }));
   };
 
+ 
   useEffect(() => {
-    fetchPackages();
-    if (userId) {
-      fetchSubscription();
-      fetchContent();
-    }
+  fetchPackages();
+  if (userId) {
+    fetchSubscription();
+    fetchContent();
 
     // Check for session_id in URL (post-checkout redirect)
-  
-  }, [userId]);
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    if (sessionId) {
+      fetchSubscription(); // Refresh subscription status
+      router.replace('/packages'); // Clear session_id from URL
+    }
+  }
+}, [userId, router]);
 
   const fetchPackages = async () => {
     try {
