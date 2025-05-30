@@ -92,7 +92,7 @@ console.log('Fetched content:', data);
     try {
       setIsLoading(true);
       console.log('Verifying checkout session:', sessionId);
-      const { data } = await axios.post('https://custom-gpt-backend-sigma.vercel.app/api/stripe/verify-checkout-session', {
+      const { data } = await axios.post('https://custom-gpt-backend-sigma.vercel.app/api/package/stripe/verify-checkout-session', {
         sessionId,
         userId,
       });
