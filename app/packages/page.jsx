@@ -80,10 +80,8 @@ export default function PackagesPage() {
 
   const fetchContent = async () => {
     try {
-      const { data } = await axios.get('https://custom-gpt-backend-sigma.vercel.app/api/protected/protected-content', {
-        params: { userId },
-      });
-      setContent(data.message);
+           const { data } = await axios.get(`https://custom-gpt-backend-sigma.vercel.app/api/package/getpackage?userId=${session.user?.id}`);
+console.log('Fetched content:', data);
       setError('');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to load content');
