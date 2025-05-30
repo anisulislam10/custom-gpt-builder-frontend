@@ -287,7 +287,14 @@ useEffect(() => {
 
   if (flowState.nodes) {
     setNodes((prevNodes) => {
-      const updatedNodes = flowState.nodes.map((reduxNode) => {
+      // Keep track of current node IDs to detect deletions
+      const currentNodeIds = new Set(prevNodes.map((n) => n.id));
+      const reduxNodeIds = new Set(flowState.nodes.map((n) => n.id));
+
+      // Filter out nodes that were deleted locally
+      const nodesToKeep = flowState.nodes.filter((reduxNode) => currentNodeIds.has(reduxNode.id));
+
+      const updatedNodes = nodesToKeep.map((reduxNode) => {
         const existingNode = prevNodes.find((n) => n.id === reduxNode.id);
         const nodeType = reduxNode.type;
 
@@ -329,8 +336,41 @@ useEffect(() => {
         return newNode;
       });
 
-      console.log('Updated nodes:', updatedNodes);
-      return updatedNodes;
+      // Add new nodes from Redux that don't exist locally
+      const newNodes = flowState.nodes
+        .filter((reduxNode) => !currentNodeIds.has(reduxNode.id))
+        .map((reduxNode) => {
+          const nodeType = reduxNode.type;
+          const template = nodeTemplates.find((t) => t.type === nodeType);
+          const defaultData = template ? { ...template.data } : {};
+          return {
+            ...reduxNode,
+            position: reduxNode.position || { x: 0, y: 0 },
+            data: {
+              ...defaultData,
+              ...reduxNode.data,
+              onChange: (value) => {
+                const dataUpdate = typeof value === 'object' ? value : { label: value };
+                dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
+              },
+              onFieldsChange: ['form', 'custom'].includes(nodeType)
+                ? (fieldsOrOptions) => {
+                    const dataUpdate = type === 'form' ? { fields: fieldsOrOptions } : { options: fieldsOrOptions };
+                    dispatch(updateNode({ id: reduxNode.id, data: dataUpdate }));
+                  }
+                : undefined,
+              onApiConfigChange: nodeType === 'aiinput'
+                ? (newConfig) => {
+                    dispatch(updateNode({ id: reduxNode.id, data: { apiConfig: newConfig } }));
+                  }
+                : undefined,
+              onSubmit: (data) => console.log(`${nodeType} submitted:`, data),
+            },
+          };
+        });
+
+      console.log('Updated nodes:', [...updatedNodes, ...newNodes]);
+      return [...updatedNodes, ...newNodes];
     });
   }
 
@@ -340,7 +380,7 @@ useEffect(() => {
 }, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges, dispatch]);
 const handleNodesChange = useCallback(
   (changes) => {
-    onNodesChange(changes);
+    onNodesChange(changes); // Apply changes to React Flow's internal state
     changes.forEach((change) => {
       if (change.type === 'position' && change.position) {
         const nodeId = change.id;
@@ -353,7 +393,7 @@ const handleNodesChange = useCallback(
               n.id === nodeId ? { ...n, position: { x: change.position.x, y: change.position.y } } : n
             )
           );
-          // Dispatch to Redux store
+          // Dispatch position update to Redux store
           dispatch(
             updateNode({
               id: nodeId,
@@ -362,25 +402,32 @@ const handleNodesChange = useCallback(
             })
           );
         }
+      } else if (change.type === 'remove') {
+        // Handle node deletion
+        const nodeId = change.id;
+        console.log('Node deleted:', { id: nodeId });
+        // Update local nodes state
+        setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+        // Update Redux store
+        dispatch(setStoreNodes(nodes.filter((n) => n.id !== nodeId)));
+        // Optionally, remove edges connected to the deleted node
+        const updatedEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
+        setEdges(updatedEdges);
+        dispatch(setEdgesAction(updatedEdges));
       }
     });
   },
-  [onNodesChange, nodes, dispatch, setNodes]
+  [onNodesChange, nodes, edges, dispatch, setNodes, setEdges]
 );
 
   // Validate edges
-  useEffect(() => {
-    const validEdges = edges.filter((edge) => {
-      const sourceExists = nodes.some((n) => n.id === edge.source);
-      const targetExists = nodes.some((n) => n.id === edge.target);
-      return sourceExists && targetExists;
-    });
-    if (validEdges.length !== edges.length) {
-      setEdges(validEdges);
-      dispatch(setEdgesAction(validEdges));
-    }
-  }, [nodes, edges, dispatch]);
-
+useEffect(() => {
+  const validEdges = edges.filter((edge) => nodes.some((n) => n.id === edge.source) && nodes.some((n) => n.id === edge.target));
+  if (validEdges.length !== edges.length) {
+    setEdges(validEdges);
+    dispatch(setEdgesAction(validEdges));
+  }
+}, [nodes, edges, dispatch]);
   // Handle drag-and-drop
   const onDragOver = useCallback(
     (event) => {
@@ -573,38 +620,43 @@ useEffect(() => {
   }
 }, [session?.user?.id, flowId, dispatch]);
   // Undo/Redo functionality
-  const handleUndo = useCallback(() => {
-    if (history.past.length === 0) return;
-    const lastAction = history.past[history.past.length - 1];
-    const newPast = history.past.slice(0, -1);
+const handleUndo = useCallback(() => {
+  if (history.past.length === 0) return;
+  const lastAction = history.past[history.past.length - 1];
+  const newPast = history.past.slice(0, -1);
 
-    if (lastAction.action === 'addNode') {
-      setNodes(nodes.filter((n) => n.id !== lastAction.node.id));
-      dispatch(setStoreNodes(nodes.filter((n) => n.id !== lastAction.node.id)));
-    } else if (lastAction.action === 'addEdge') {
-      setEdges(edges.filter((e) => e.id !== lastAction.edge.id));
-      dispatch(setEdgesAction(edges.filter((e) => e.id !== lastAction.edge.id)));
-    }
+  if (lastAction.action === 'addNode') {
+    setNodes(nodes.filter((n) => n.id !== lastAction.node.id));
+    dispatch(setStoreNodes(nodes.filter((n) => n.id !== lastAction.node.id)));
+  } else if (lastAction.action === 'addEdge') {
+    setEdges(edges.filter((e) => e.id !== lastAction.edge.id));
+    dispatch(setEdgesAction(edges.filter((e) => e.id !== lastAction.edge.id)));
+  } else if (lastAction.action === 'removeNode') {
+    setNodes([...nodes, lastAction.node]);
+    dispatch(addNode(lastAction.node));
+  }
 
-    setHistory({ past: newPast, future: [lastAction, ...history.future] });
-  }, [history, nodes, edges, dispatch]);
+  setHistory({ past: newPast, future: [lastAction, ...history.future] });
+}, [history, nodes, edges, dispatch]);
 
-  const handleRedo = useCallback(() => {
-    if (history.future.length === 0) return;
-    const nextAction = history.future[0];
-    const newFuture = history.future.slice(1);
+const handleRedo = useCallback(() => {
+  if (history.future.length === 0) return;
+  const nextAction = history.future[0];
+  const newFuture = history.future.slice(1);
 
-    if (nextAction.action === 'addNode') {
-      dispatch(addNode(nextAction.node));
-      setNodes((nds) => [...nds, nextAction.node]);
-    } else if (nextAction.action === 'addEdge') {
-      setEdges([...edges, nextAction.edge]);
-      dispatch(setEdgesAction([...edges, nextAction.edge]));
-    }
+  if (nextAction.action === 'addNode') {
+    dispatch(addNode(nextAction.node));
+    setNodes((nds) => [...nds, nextAction.node]);
+  } else if (nextAction.action === 'addEdge') {
+    setEdges([...edges, nextAction.edge]);
+    dispatch(setEdgesAction([...edges, nextAction.edge]));
+  } else if (nextAction.action === 'removeNode') {
+    setNodes(nodes.filter((n) => n.id !== nextAction.node.id));
+    dispatch(setStoreNodes(nodes.filter((n) => n.id !== nextAction.node.id)));
+  }
 
-    setHistory({ past: [...history.past, nextAction], future: newFuture });
-  }, [history, edges, dispatch]);
-
+  setHistory({ past: [...history.past, nextAction], future: newFuture });
+}, [history, edges, nodes, dispatch]);
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -675,7 +727,14 @@ useEffect(() => {
 //   setFlowName(flowState.flowName || '');
 //   setWebsiteDomainInput(flowState.websiteDomain || '');
 // }, [flowState.nodes, flowState.edges, flowState.flowName, flowState.websiteDomain, setNodes, setEdges]);
- 
+ useEffect(() => {
+  if (flowState.status === 'idle' && flowState.nodes.length === 0 && flowState.edges.length === 0) {
+    setNodes([]);
+    setEdges([]);
+    setFlowName('');
+    setWebsiteDomainInput('');
+  }
+}, [flowState.status, flowState.nodes, flowState.edges, setNodes, setEdges]);
 return (
     <div
       className="flex h-screen w-full font-sans transition-colors duration-300"
