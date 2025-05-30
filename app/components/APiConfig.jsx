@@ -152,7 +152,7 @@ const ApiConfigModal = ({ isOpen, onClose, apiConfig, onSave }) => {
 
             <label className="block text-sm font-medium text-gray-700 mb-1">Model</label>
             <select
-              value={config?.gemini.apiKey ?? ''}
+              value={config?.gemini.model ?? ''}
               onChange={(e) => handleChange('gemini', 'model', e.target.value)}
               className="w-full p-2 border border-gray-300 rounded"
             >
