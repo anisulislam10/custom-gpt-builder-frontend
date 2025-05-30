@@ -177,6 +177,7 @@ console.log('Fetched content:', data);
           <h1 className="text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
             Choose Your Hosting Plan
           </h1>
+          
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
