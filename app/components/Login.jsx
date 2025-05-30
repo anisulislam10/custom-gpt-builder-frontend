@@ -1,45 +1,44 @@
-// pages/login.jsx
-"use client";
-import { signIn } from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { FaEnvelope, FaLock, FaGoogle } from "react-icons/fa";
-import { useSession } from "next-auth/react";
-import { useDispatch } from "react-redux";
-import { setCredentials } from "../../store/authSlice";
-import { Toaster, toast } from "react-hot-toast";
-import ReCAPTCHA from "react-google-recaptcha";
+'use client';
+import { signIn } from 'next-auth/react';
+import { useState, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
+import { FaEnvelope, FaLock, FaGoogle } from 'react-icons/fa';
+import { useSession } from 'next-auth/react';
+import { useDispatch } from 'react-redux';
+import { setCredentials } from '../../store/authSlice';
+import { Toaster, toast } from 'react-hot-toast';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function LoginPagee() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-  const error = searchParams.get("error");
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const error = searchParams.get('error'); // Get error from query params
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState(null);
 
   const recaptchaRef = useRef(null);
 
+  // Handle errors from query params
   useEffect(() => {
     if (error) {
-      console.error("Login error:", decodeURIComponent(error));
       toast.error(decodeURIComponent(error), { duration: 5000 });
     }
   }, [error]);
 
+  // Handle session status and redirect
   useEffect(() => {
-    if (status === "loading") return;
-    if (status === "authenticated" && session) {
-      console.log("Session established:", session);
+    if (status === 'loading') return;
+    if (status === 'authenticated' && session) {
       dispatch(
         setCredentials({
           token: session.user.token,
@@ -57,25 +56,22 @@ export default function LoginPagee() {
     }
   }, [status, session, router, dispatch, callbackUrl]);
 
+  // Execute reCAPTCHA programmatically
   const executeRecaptcha = async () => {
     if (!recaptchaRef.current) {
-      console.error("reCAPTCHA not loaded");
-      toast.error("reCAPTCHA not loaded. Please try again.");
+      toast.error('reCAPTCHA not loaded. Please try again.');
       return null;
     }
     try {
       const token = await recaptchaRef.current.executeAsync();
       if (!token) {
-        console.error("reCAPTCHA token not generated");
-        toast.error("reCAPTCHA verification failed. Please try again.");
+        toast.error('reCAPTCHA verification failed. Please try again.');
         return null;
       }
-      console.log("reCAPTCHA token:", token);
-      setRecaptchaToken(token);
       return token;
     } catch (err) {
-      console.error("reCAPTCHA error:", err);
-      toast.error("Failed to execute reCAPTCHA. Please try again.");
+      console.error('reCAPTCHA error:', err);
+      toast.error('Failed to execute reCAPTCHA. Please try again.');
       return null;
     }
   };
@@ -86,8 +82,7 @@ export default function LoginPagee() {
 
     setIsLoading(true);
     try {
-      console.log("Attempting login:", { email, recaptchaToken: token });
-      const res = await signIn("credentials", {
+      const res = await signIn('credentials', {
         email,
         password,
         recaptchaToken: token,
@@ -95,15 +90,13 @@ export default function LoginPagee() {
       });
 
       if (res?.ok) {
-        console.log("Login successful:", res);
-        toast.success("Login successful! Redirecting...", { duration: 3000 });
+        toast.success('Login successful! Redirecting...', { duration: 3000 });
       } else {
-        console.error("Login failed:", res?.error);
-        toast.error(res?.error || "Invalid email or password", { duration: 5000 });
+        toast.error(res?.error || 'Invalid email or password', { duration: 5000 });
       }
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error(error.message || "An error occurred during login", { duration: 5000 });
+      console.error('Login error:', error);
+      toast.error(error.message || 'An error occurred during login', { duration: 5000 });
     } finally {
       setIsLoading(false);
       setRecaptchaToken(null);
@@ -116,11 +109,10 @@ export default function LoginPagee() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      console.log("Initiating Google login");
-      await signIn("google", { callbackUrl });
+      await signIn('google', { callbackUrl });
     } catch (error) {
-      console.error("Google login error:", error);
-      toast.error(error.message || "Failed to login with Google", { duration: 5000 });
+      console.error('Google login error:', error);
+      toast.error(error.message || 'Failed to login with Google', { duration: 5000 });
     } finally {
       setGoogleLoading(false);
     }
@@ -128,8 +120,7 @@ export default function LoginPagee() {
 
   const handleForgotPassword = async () => {
     if (!forgotPasswordEmail) {
-      console.error("Forgot password: Email not provided");
-      toast.error("Please enter your email address", { duration: 5000 });
+      toast.error('Please enter your email address', { duration: 5000 });
       return;
     }
 
@@ -138,27 +129,24 @@ export default function LoginPagee() {
 
     setIsLoading(true);
     try {
-      console.log("Forgot password request:", { email: forgotPasswordEmail, recaptchaToken: token });
-      const res = await fetch(`https://custom-gpt-backend-sigma.vercel.app/api/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('https://custom-gpt-builder-frontend.vercel.app/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotPasswordEmail, recaptchaToken: token }),
       });
-
       const data = await res.json();
-      console.log("Forgot password response:", { status: res.status, data });
-
       if (res.ok) {
-        toast.success("Password reset email sent! Please check your inbox.", { duration: 5000 });
+        toast.success('Password reset email sent! Please check your inbox.', { duration: 5000 });
         setShowForgotPassword(false);
-        setForgotPasswordEmail("");
+        setForgotPasswordEmail('');
       } else {
-        console.error("Forgot password failed:", data);
-        toast.error(data.message || "Failed to send reset email", { duration: 5000 });
+        toast.error(data.message || 'Failed to send reset email', { duration: 5000 });
       }
     } catch (error) {
-      console.error("Forgot password fetch error:", error);
-      toast.error(error.message || "An error occurred while sending the reset email", { duration: 5000 });
+      console.error('Forgot password error:', error);
+      toast.error(error.message || 'An error occurred while sending the reset email', {
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
       setRecaptchaToken(null);
@@ -166,6 +154,10 @@ export default function LoginPagee() {
         recaptchaRef.current.reset();
       }
     }
+  };
+
+  const onReCAPTCHAChange = (token) => {
+    setRecaptchaToken(token);
   };
 
   return (
@@ -178,7 +170,9 @@ export default function LoginPagee() {
 
         {showForgotPassword ? (
           <>
-            <h2 className="text-xl font-semibold text-center text-gray-700 mb-4">Reset Password</h2>
+            <h2 className="text-xl font-semibold text-center text-gray-700 mb-4">
+              Reset Password
+            </h2>
             <div className="space-y-5">
               <div className="relative group">
                 <FaEnvelope className="absolute top-3.5 left-3 text-blue-500 group-focus-within:text-blue-700 transition" />
@@ -194,7 +188,7 @@ export default function LoginPagee() {
                 ref={recaptchaRef}
                 sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
                 size="invisible"
-                onChange={setRecaptchaToken}
+                onChange={onReCAPTCHAChange}
               />
               <button
                 onClick={handleForgotPassword}
@@ -204,7 +198,7 @@ export default function LoginPagee() {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
                 ) : (
-                  "Send Reset Email"
+                  'Send Reset Email'
                 )}
               </button>
               <button
@@ -228,6 +222,7 @@ export default function LoginPagee() {
                   value={email}
                 />
               </div>
+
               <div className="relative group">
                 <FaLock className="absolute top-3.5 left-3 text-blue-500 group-focus-within:text-blue-700 transition" />
                 <input
@@ -238,12 +233,14 @@ export default function LoginPagee() {
                   value={password}
                 />
               </div>
+
               <ReCAPTCHA
                 ref={recaptchaRef}
                 sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY}
                 size="invisible"
-                onChange={setRecaptchaToken}
+                onChange={onReCAPTCHAChange}
               />
+
               <button
                 onClick={handleLogin}
                 disabled={isLoading}
@@ -252,20 +249,23 @@ export default function LoginPagee() {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
                 ) : (
-                  "Login"
+                  'Login'
                 )}
               </button>
+
               <button
                 onClick={() => setShowForgotPassword(true)}
                 className="w-full text-blue-600 font-semibold hover:underline transition"
               >
                 Forgot Password?
               </button>
+
               <div className="flex items-center my-4">
                 <div className="flex-grow border-t border-gray-300"></div>
                 <span className="mx-4 text-gray-500">or</span>
                 <div className="flex-grow border-t border-gray-300"></div>
               </div>
+
               <button
                 onClick={handleGoogleLogin}
                 disabled={googleLoading}
@@ -280,10 +280,15 @@ export default function LoginPagee() {
                   </>
                 )}
               </button>
+              
             </div>
+
             <p className="text-center text-gray-600 mt-6 animate-fade-in">
-              Don't have an account?{" "}
-              <Link href="/signup" className="text-blue-600 font-semibold hover:underline transition">
+              Don't have an account?{' '}
+              <Link
+                href="/signup"
+                className="text-blue-600 font-semibold hover:underline transition"
+              >
                 Sign Up
               </Link>
             </p>
