@@ -110,6 +110,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      
       {/* Mobile sidebar backdrop */}
       <AnimatePresence>
         {mobileSidebarOpen && (

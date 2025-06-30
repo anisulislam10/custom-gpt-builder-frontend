@@ -44,24 +44,21 @@ export default function RootLayout({ children }) {
           ) : (
             <DashboardLayout>
               {children}
-              {showIframe && (
-                <iframe
-                  src="https://custom-gpt-backend-sigma.vercel.app/api/chatbot/683858bd96336570952335af/6835bc42f384539e5750e84a?domain=https%3A%2F%2Fcustom-gpt-builder-frontend.vercel.app"
-                  style={{
-                    width: '400px',
-                    height: '600px',
-                    border: 'none',
-                    position: 'fixed',
-                    bottom: '20px',
-                    right: '20px',
-                    zIndex: 1000,
-                  }}
-                  allowTransparency="true"
-                  title="Chatbot"
-                ></iframe>
+              {/* {showIframe && (
+            <iframe
+  src="http://localhost:5000/api/chatbot/6839fd37577ced143770b4a3/6839e0287f90d8c892f0c2cf?domain=http%3A%2F%2Flocalhost:3  000/"
+  style={{
+    width: '400px',
+    height: '600px',
+    border: 'none',
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px'
+  }}
+/>
                 
 
-              )}
+              )} */}
               <Toaster
                 position="top-right"
                 toastOptions={{
