@@ -16,7 +16,7 @@ export default function SignupPage() {
   const handleSignup = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/register', {
+      const res = await fetch('http://165.227.120.144/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
@@ -45,7 +45,7 @@ export default function SignupPage() {
   const handleResendVerification = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/resend-verification', {
+      const res = await fetch('http://165.227.120.144/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

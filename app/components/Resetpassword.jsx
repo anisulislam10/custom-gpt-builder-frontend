@@ -32,7 +32,7 @@ export default function ResetPassword() {
     // Validate token with backend
     const validateToken = async () => {
       try {
-        const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/validate-reset-token', {
+        const res = await fetch('http://165.227.120.144/api/auth/validate-reset-token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),
@@ -64,7 +64,7 @@ export default function ResetPassword() {
     }
     setIsLoading(true);
     try {
-      const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/reset-password', {
+      const res = await fetch('http://165.227.120.144/api/auth/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password }),

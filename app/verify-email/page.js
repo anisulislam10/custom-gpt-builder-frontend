@@ -18,7 +18,7 @@ export default function VerifyEmailPage() {
 
     const verifyEmail = async () => {
       try {
-        const res = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/auth/verify-email', {
+        const res = await fetch('http://165.227.120.144/api/auth/verify-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),

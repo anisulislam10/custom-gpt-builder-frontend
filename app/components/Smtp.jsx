@@ -48,7 +48,7 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
  
   const handleSubmit = async () => {
     try {
-      const response = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/smtp/save', {
+      const response = await fetch('http://165.227.120.144/api/smtp/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +75,7 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     setTestStatus(null);
 
     try {
-        const response = await fetch('https://custom-gpt-backend-sigma.vercel.app/api/smtp/send-test-email', {
+        const response = await fetch('http://165.227.120.144/api/smtp/send-test-email', {
             method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(smtpConfig),

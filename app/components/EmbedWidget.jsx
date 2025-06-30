@@ -46,7 +46,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
   // Generate JavaScript snippet
   const generateJsSnippet = () => {
     const script = `
-      <script src="https://custom-gpt-backend-sigma.vercel.app/api/chatbot/script.js"></script>
+      <script src="http://165.227.120.144/api/chatbot/script.js"></script>
       <script>
         window.ChatbotConfig = {
           flowId: "${flowId || 'your-flow-id'}",
@@ -70,7 +70,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
   const generateIframeCode = () => {
     return `
       <iframe
-        src="https://custom-gpt-backend-sigma.vercel.app/api/chatbot/${flowId}/${session?.user?.id}?domain=${encodeURIComponent(websiteDomain)}"
+        src="http://165.227.120.144/api/chatbot/${flowId}/${session?.user?.id}?domain=${encodeURIComponent(websiteDomain)}"
         style="width: 400px; height: 600px; border: none; position: fixed; ${position.replace('-', ': ')}: 20px;"
         allowtransparency="true"
       ></iframe>
@@ -278,7 +278,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
           <div className="w-full flex justify-center mt-4 pb-6">
             <div style={previewStyles} className="animate-float max-h-[40vh] sm:max-h-[50vh] overflow-hidden">
               <iframe
-                src={`https://custom-gpt-backend-sigma.vercel.app/api/chatbot/${flowId}/${session?.user?.id}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&preview=true`}
+                src={`http://165.227.120.144/api/chatbot/${flowId}/${session?.user?.id}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&preview=true`}
                 className="w-full h-full rounded-2xl"
                 allowtransparency="true"
                 title="Chatbot preview"
