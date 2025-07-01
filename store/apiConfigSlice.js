@@ -3,7 +3,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchApiConfig = createAsyncThunk(
   'apiConfig/fetch',
   async (userId) => {
-    const res = await fetch(`http://165.227.120.144/api/openai/${userId}`);
+    const res = await fetch(`https://back.techrecto.com/api/openai/${userId}`);
     const data = await res.json();
     return data;
   }
@@ -12,7 +12,7 @@ export const fetchApiConfig = createAsyncThunk(
 export const saveApiConfig = createAsyncThunk(
   'apiConfig/save',
   async ({ userId, config }) => {
-    await fetch(`http://165.227.120.144/api/openai/save`, {
+    await fetch(`https://back.techrecto.com/api/openai/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ userId, ...config }),

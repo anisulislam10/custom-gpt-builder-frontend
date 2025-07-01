@@ -21,7 +21,7 @@ export default function DashboardPage() {
 
  const fetchSubscription = async () => {
     try {
-      const { data } = await axios.get(`http://165.227.120.144/api/package/getpackage?userId=${session.user?.id}`);
+      const { data } = await axios.get(`https://back.techrecto.com/api/package/getpackage?userId=${session.user?.id}`);
         setUserSubscription(data.userPackage || null);
     } catch (err) {
       console.error('Failed to fetch subscription:', err);
