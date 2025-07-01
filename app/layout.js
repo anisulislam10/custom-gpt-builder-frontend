@@ -46,7 +46,7 @@ export default function RootLayout({ children }) {
               {children}
               {showIframe && (
             <iframe
-  src="http://localhost:5000/api/chatbot/6839fd37577ced143770b4a3/6839e0287f90d8c892f0c2cf?domain=http%3A%2F%2Flocalhost:3000/"
+  src="https://back.techrecto.com/api/chatbot/6839fd37577ced143770b4a3/6839e0287f90d8c892f0c2cf?domain=http%3A%2F%2Flocalhost:3000/"
   style={{
     width: '400px',
     height: '600px',
