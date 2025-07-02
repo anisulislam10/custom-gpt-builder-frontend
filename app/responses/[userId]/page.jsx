@@ -64,8 +64,7 @@ export default function FormResponses() {
               group.responses.map((response) => (
                 <tr key={response._id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 text-gray-600">{group.date}</td>
-                  
-                  <td className="px-6 py-4">{response.formName==='Unnamed Flow'?'Contact Form':response.formName}</td>
+                  <td className="px-6 py-4">{response.formName === 'Unnamed Flow' ? 'Contact Form' : response.formName}</td>
                   <td className="px-6 py-4">{response.userEmail}</td>
                   <td className="px-6 py-4">{new Date(response.submitDate).toLocaleString()}</td>
                   <td className="px-6 py-4">
@@ -102,7 +101,7 @@ export default function FormResponses() {
             <div className="space-y-4">
               <div>
                 <span className="font-semibold text-gray-600">Form Name:</span>
-                <p className="text-gray-800">{selectedResponse.formName==='Unnamed Flow'?'Contact Form':''}</p>
+                <p className="text-gray-800">{selectedResponse.formName === 'Unnamed Flow' ? 'Contact Form' : selectedResponse.formName}</p>
               </div>
               <div>
                 <span className="font-semibold text-gray-600">User Email:</span>
@@ -112,12 +111,34 @@ export default function FormResponses() {
                 <span className="font-semibold text-gray-600">Submitted At:</span>
                 <p className="text-gray-800">{new Date(selectedResponse.submitDate).toLocaleString()}</p>
               </div>
-              {/* Add more response details as needed */}
+              {/* Display Form Response Data */}
               <div>
-                <span className="font-semibold text-gray-600">Response Data:</span>
-                <pre className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700 overflow-auto max-h-60">
-                  {JSON.stringify(selectedResponse, null, 2)}
-                </pre>
+                <span className="font-semibold text-gray-600">Form Responses:</span>
+                <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
+                  {Object.entries(selectedResponse.response).map(([key, value]) => (
+                    <p key={key} className="mb-2">
+                      <span className="font-medium">{key}:</span> {JSON.stringify(value)}
+                    </p>
+                  ))}
+                </div>
+              </div>
+              {/* Display Custom Fields */}
+              <div>
+                <span className="font-semibold text-gray-600">Custom Fields:</span>
+                <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-700">
+                  {Object.entries(selectedResponse)
+                    .filter(([key]) => !['userEmail', 'userId', 'flowId', 'formId', 'formName', 'date', 'submitDate', 'response', '_id', '__v'].includes(key))
+                    .map(([key, value]) => (
+                      <p key={key} className="mb-2">
+                        <span className="font-medium">{key}:</span> {JSON.stringify(value)}
+                      </p>
+                    ))}
+                  {Object.entries(selectedResponse)
+                    .filter(([key]) => !['userEmail', 'userId', 'flowId', 'formId', 'formName', 'date', 'submitDate', 'response', '_id', '__v'].includes(key))
+                    .length === 0 && (
+                      <p className="text-gray-500">No custom fields available</p>
+                    )}
+                </div>
               </div>
             </div>
 

@@ -8,6 +8,7 @@ import { motion } from 'framer-motion';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Chatbot from '../components/Chatbot';
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
@@ -177,6 +178,7 @@ console.log('Fetched content:', data);
           <h1 className="text-5xl font-extrabold text-white sm:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-500">
             Choose Your Hosting Plan
           </h1>
+                 <Chatbot />
           
           <motion.p
             initial={{ opacity: 0 }}
