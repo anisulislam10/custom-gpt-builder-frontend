@@ -187,15 +187,15 @@ const nodeTemplates = [
  data: { placeholder: 'Type your message...' },
  hoverClass: 'hover:scale-105 hover:shadow-2xl transition-all duration-300',
  },
- {
- type: 'condition',
- icon: <FiZap className="text-yellow-600 text-2xl animate-pulse" />,
- label: 'Condition',
- category: 'Logic',
- bg: 'bg-gradient-to-br from-yellow-400 via-yellow-300 to-yellow-600 hover:bg-gradient-to-br hover:from-yellow-500 hover:to-orange-500',
- data: { label: 'Condition' },
- hoverClass: 'hover:scale-105 hover:shadow-2xl transition-all duration-300',
- },
+  {
+    type: 'condition',
+    icon: <FiZap className="text-yellow-600 text-2xl animate-pulse" />,
+    label: 'Condition',
+    category: 'Logic',
+    bg: 'bg-gradient-to-br from-yellow-400 via-yellow-300 to-yellow-600 hover:bg-gradient-to-br hover:from-yellow-500 hover:to-orange-500',
+    data: { label: 'Condition', promptForInput: false }, // Your provided snippet
+    hoverClass: 'hover:scale-105 hover:shadow-2xl transition-all duration-300',
+  },
  {
  type: 'aiinput',
  icon: <AiFillAliwangwang className="text-white text-3xl drop-shadow-md animate-bounce" />, // Larger icon

@@ -12,11 +12,18 @@ const ConditionNode = ({ data }) => {
         type="text"
         value={data.label}
         onChange={(e) => data.onChange?.(e.target.value)}
-        placeholder='e.g. user_input === "yes"'
+        placeholder="Enter question (e.g., 'Are you satisfied?')"
         className="w-full p-2 rounded border text-gray-700 border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
       />
-
-      {/* Yes/No Handles */}
+      {/* Optional: Input field for user input, not needed for Yes/No buttons */}
+      {data.promptForInput && (
+        <input
+          type="text"
+          placeholder="Enter value for condition"
+          onChange={(e) => data.onChange?.({ ...data, userInput: e.target.value })}
+          className="w-full p-2 mt-2 rounded border text-gray-700 border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+        />
+      )}
       <div className="flex justify-between mt-4 text-xs text-yellow-700">
         <div className="flex items-center gap-1">
           <FiCheckCircle className="text-green-500" />
@@ -27,15 +34,11 @@ const ConditionNode = ({ data }) => {
           No
         </div>
       </div>
-
-      {/* Output Handles */}
       <Handle type="source" position={Position.Bottom} id="yes" style={{ left: '30%', background: 'green' }} />
       <Handle type="source" position={Position.Bottom} id="no" style={{ left: '70%', background: 'red' }} />
-
-      {/* Input Handle */}
       <Handle type="target" position={Position.Top} style={{ background: '#facc15' }} />
     </div>
   );
 };
 
-export default ConditionNode
+export default ConditionNode;

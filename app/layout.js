@@ -5,6 +5,8 @@ import { Toaster } from 'react-hot-toast';
 import DashboardLayout from './components/DashboardLayout';
 import { AppProviders } from './providers';
 import { usePathname } from 'next/navigation';
+import Chatbot from './components/Chatbot';
+import ChatbotLoader from './components/Chatbot';
 
 export default function RootLayout({ children }) {
   const pathname = usePathname();
@@ -45,18 +47,8 @@ export default function RootLayout({ children }) {
             <DashboardLayout>
               {children}
               {showIframe && (
-            <iframe
-  src="https://back.techrecto.com/api/chatbot/6839fd37577ced143770b4a3/6839e0287f90d8c892f0c2cf?domain=http%3A%2F%2Flocalhost:3000/"
-  style={{
-    width: '400px',
-    height: '600px',
-    border: 'none',
-    position: 'fixed',
-    bottom: '20px',
-    right: '20px'
-  }}
-/>
                 
+  <Chatbot />                
 
               )}
               <Toaster

@@ -1,17 +1,202 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
   <title>Test Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.7;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #1f2937;
+    }
+
+    header {
+      background-color: #6366f1;
+      color: white;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    main {
+      padding: 30px 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    section {
+      margin-bottom: 60px;
+    }
+
+    h2 {
+      color: #111827;
+      margin-bottom: 15px;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+
+    button {
+      background-color: #f59e0b;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #d97706;
+    }
+
+    .testimonial {
+      background-color: #fff;
+      padding: 20px;
+      border-left: 4px solid #6366f1;
+      margin-bottom: 20px;
+      border-radius: 6px;
+    }
+
+    .blog-post {
+      background-color: white;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    footer {
+      background-color: #1f2937;
+      color: white;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    input[type="email"] {
+      padding: 10px;
+      width: 250px;
+      max-width: 100%;
+      margin-right: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-  <div id="chatbot-container" style="width: 400px; height: 600px;"></div>
 
-  
-      <iframe
-        src="https://back.techrecto.com/api/chatbot/6839fd37577ced143770b4a3/6839e0287f90d8c892f0c2cf?domain=https%3A%2F%2Fcustom-gpt-builder-frontend.vercel.app"
-        style="width: 400px; height: 600px; border: none; position: fixed;"
-        allowtransparency="true"
-      ></iframe>
-    
+  <header>
+    <h1>Welcome to Our Awesome Platform</h1>
+    <p>Experience innovation, design, and technology—all in one place.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>About Us</h2>
+      <p>
+        We’re a forward-thinking tech company focused on delivering top-notch solutions in web and app development, user experience design, and digital marketing. 
+        Our global team is united by a shared passion for creativity, performance, and technology.
+      </p>
+    </section>
+
+    <section>
+      <h2>Our Services</h2>
+      <ul>
+        <li>Custom Web Development</li>
+        <li>Mobile Applications</li>
+        <li>Cloud Hosting & Infrastructure</li>
+        <li>Conversion-focused UI/UX</li>
+        <li>Marketing Strategy & Automation</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Featured Project</h2>
+      <img src="https://via.placeholder.com/900x400" alt="Featured Project">
+      <p>
+        We recently launched a marketplace platform that connects artists with buyers. With thousands of active users, it’s now one of the fastest-growing creative communities in the region.
+      </p>
+    </section>
+
+    <section>
+      <h2>Testimonials</h2>
+      <div class="testimonial">
+        <p>“Incredible service and support. They helped us scale to over 100k users in just 6 months!”</p>
+        <strong>- Sarah M., CEO of FintechPro</strong>
+      </div>
+      <div class="testimonial">
+        <p>“They feel like an extension of our team. Always responsive, always delivering.”</p>
+        <strong>- Jason L., Founder of CloudStart</strong>
+      </div>
+    </section>
+
+    <section>
+      <h2>Blog Highlights</h2>
+      <div class="blog-post">
+        <h3>Top 5 Design Trends of 2025</h3>
+        <p>Stay ahead of the curve with these emerging design practices that are dominating the web this year...</p>
+        <button>Read More</button>
+      </div>
+      <div class="blog-post">
+        <h3>How to Build Scalable Web Apps</h3>
+        <p>Explore practical tips and architecture choices for building applications that grow with your users...</p>
+        <button>Read More</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Frequently Asked Questions</h2>
+      <p><strong>Q: How much do your services cost?</strong><br>A: It depends on the scope. Contact us for a free quote.</p>
+      <p><strong>Q: Do you offer post-launch support?</strong><br>A: Yes, we offer maintenance and support packages.</p>
+      <p><strong>Q: Where are you located?</strong><br>A: Our team is distributed across the US, Europe, and Asia.</p>
+    </section>
+
+    <section>
+      <h2>Subscribe to Our Newsletter</h2>
+      <p>Stay updated with the latest tech news and insights.</p>
+      <input type="email" placeholder="Enter your email">
+      <button>Subscribe</button>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Test Company. All rights reserved.</p>
+    <p>Follow us on 
+      <a href="#" style="color:#f59e0b;">Twitter</a> and 
+      <a href="#" style="color:#f59e0b;">LinkedIn</a>.
+    </p>
+  </footer>
+
+  <!-- Chatbot Integration -->
+  <script crossorigin="anonymous" src="https://back.techrecto.com/api/chatbot/script.js"></script>
+  <script>
+    window.ChatbotConfig = {
+      flowId: "6839fd37577ced143770b4a3",
+      userId: "6839e0287f90d8c892f0c2cf",
+      websiteDomain: "https://custom-gpt-builder-frontend.vercel.app",
+      position: "bottom-right",
+      theme: {
+        primary: "#6366f1",
+        secondary: "#f59e0b",
+        background: "#ffffff",
+        text: "#1f2937"
+      }
+    };
+    window.initChatbot();
+  </script>
 </body>
 </html>
