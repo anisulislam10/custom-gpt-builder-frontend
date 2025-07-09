@@ -13,6 +13,7 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     port: '',
     username: '',
     password: '',
+    
     secure: false,
   });
  const { data: session, status } = useSession({
@@ -21,9 +22,11 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     //   redirect("/login");
     // }
   });
+
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState(null);
  
+
   // Sync Redux config into local state
   useEffect(() => {
     if (savedConfig) {
