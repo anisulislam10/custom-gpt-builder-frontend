@@ -1,43 +1,37 @@
-'use client';
 import { useEffect } from 'react';
 
 export default function ChatbotLoader() {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://back.techrecto.com/api/chatbot/script.js';
+    script.src = `${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js`;
     script.async = true;
     script.crossOrigin = 'anonymous';
 
     script.onload = () => {
       window.ChatbotConfig = {
-        flowId: '6839fd37577ced143770b4a3',
-        userId: '6839e0287f90d8c892f0c2cf',
-        websiteDomain: 'https://custom-gpt-builder-frontend.vercel.app',
-        position: 'bottom-right',
+        flowId: "686baae530bf09c5634ea510",
+        userId: "6839e0287f90d8c892f0c2cf",
+        websiteDomain: "https://custom-gpt-builder-frontend.vercel.app",
+        position: "bottom-right",
         theme: {
-          primary: '#6366f1',
-          secondary: '#f59e0b',
-          background: '#ffffff',
-          text: '#1f2937'
+          primary: "#7C3AED",
+          secondary: "#F59E0B",
+          background: "#FFFFFF",
+          text: "#1F2937",
+          buttonText: "#FFFFFF"
         }
       };
-
-      // Wait a bit to make sure DOM is ready
       setTimeout(() => {
         if (window.initChatbot) {
-          console.log('[ChatbotLoader] Calling initChatbot');
           window.initChatbot();
-        } else {
-          console.error('initChatbot is not available');
         }
-      }, 300); // try increasing to 500 if needed
-    };
-
-    script.onerror = () => {
-      console.error('Failed to load chatbot script');
+      }, 300);
     };
 
     document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
   }, []);
 
   return null;

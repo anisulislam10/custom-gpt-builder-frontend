@@ -18,7 +18,7 @@ export default function VerifyEmailPage() {
 
     const verifyEmail = async () => {
       try {
-        const res = await fetch('https://back.techrecto.com/api/auth/verify-email', {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/verify-email`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token }),

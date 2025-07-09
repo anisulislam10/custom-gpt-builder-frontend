@@ -16,7 +16,7 @@ export default function SignupPage() {
   const handleSignup = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('https://back.techrecto.com/api/auth/register', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),
@@ -45,7 +45,7 @@ export default function SignupPage() {
   const handleResendVerification = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('https://back.techrecto.com/api/auth/resend-verification', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/resend-verification`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

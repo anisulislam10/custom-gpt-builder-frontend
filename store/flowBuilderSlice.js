@@ -34,7 +34,7 @@ export const saveFlow = createAsyncThunk(
   'flow/saveFlow',
   async ({ userId, nodes, edges, flowName, websiteDomain }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`https://back.techrecto.com/api/flow/${userId}`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`, {
         nodes,
         edges,
         flowName: flowName || `Flow-${Date.now()}`,
@@ -54,7 +54,7 @@ export const loadFlows = createAsyncThunk(
   'flow/loadFlows',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://back.techrecto.com/api/flow/${userId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -65,7 +65,7 @@ export const loadFlows2 = createAsyncThunk(
   'flow/loadFlows2',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://back.techrecto.com/api/flow/user/${userId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/user/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -77,7 +77,7 @@ export const loadFlow = createAsyncThunk(
   'flow/loadFlow',
   async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`https://back.techrecto.com/api/flow/${userId}/${flowId}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`);
       // Normalize edges data
       const edges = (response.data.edges || []).map(edge => ({
         ...edge,
@@ -97,7 +97,7 @@ export const updateFlow = createAsyncThunk(
   'flow/updateFlow',
   async ({ userId, flowId, nodes, edges, websiteDomain }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`https://back.techrecto.com/api/flow/${userId}/${flowId}`, {
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`, {
         nodes,
         edges,
         websiteDomain
@@ -113,7 +113,7 @@ export const deleteFlow = createAsyncThunk(
   'flow/deleteFlow',
   async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`https://back.techrecto.com/api/flow/${userId}/${flowId}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`);
       return flowId;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);

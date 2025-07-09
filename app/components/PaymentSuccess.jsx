@@ -14,7 +14,7 @@ export default function PaymentSuccess() {
     const verifyPayment = async () => {
       try {
         const { data } = await axios.get(
-          `https://back.techrecto.com/api/stripe/verify-payment?session_id=${sessionId}`
+          `${process.env.NEXT_PUBLIC_API_BASE}/api/stripe/verify-payment?session_id=${sessionId}`
         );
         setPaymentStatus(data.status);
       } catch (error) {

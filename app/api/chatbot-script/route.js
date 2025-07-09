@@ -1,6 +1,6 @@
 export async function GET() {
   try {
-    const res = await fetch('https://back.techrecto.com/api/chatbot/script.js', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js`, {
       cache: 'no-store', // Prevent caching issues
     });
     if (!res.ok) {

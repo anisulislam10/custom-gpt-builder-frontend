@@ -4,7 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchSmtpConfig = createAsyncThunk(
   'smtp/fetchConfig',
   async (userId) => {
-    const response = await fetch(`https://back.techrecto.com/api/smtp/get/${userId}`);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/get/${userId}`);
     if (!response.ok) throw new Error('Failed to fetch SMTP config');
     return await response.json();
   }

@@ -129,7 +129,7 @@ export default function LoginPagee() {
 
     setIsLoading(true);
     try {
-      const res = await fetch('https://back.techrecto.com/api/auth/forgot-password', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/auth/forgot-password `, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: forgotPasswordEmail, recaptchaToken: token }),

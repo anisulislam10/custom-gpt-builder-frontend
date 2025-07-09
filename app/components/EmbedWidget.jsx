@@ -47,7 +47,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
 
   const generateJsSnippet = () => {
     return `
-<script crossorigin="anonymous" src="https://back.techrecto.com/api/chatbot/script.js"></script>
+<script crossorigin="anonymous" src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js"></script>
 <script>
   window.ChatbotConfig = {
     flowId: "${flowId || 'your-flow-id'}",
@@ -78,7 +78,7 @@ import { useEffect } from 'react';
 export default function ChatbotLoader() {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = 'https://back.techrecto.com/api/chatbot/script.js';
+    script.src = '${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js';
     script.async = true;
     script.crossOrigin = 'anonymous';
 
@@ -127,7 +127,7 @@ export class ChatbotLoaderComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.script = document.createElement('script');
-    this.script.src = 'https://back.techrecto.com/api/chatbot/script.js';
+    this.script.src = '${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js';
     this.script.async = true;
     this.script.crossOrigin = 'anonymous';
 
@@ -186,7 +186,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x${customTheme.backgroundColor.replace('#', '')}))
       ..loadRequest(Uri.parse(
-          'https://back.techrecto.com/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${websiteDomain || 'your-website.com'}&theme=
+          '${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${websiteDomain || 'your-website.com'}&theme=
         "primary": "${customTheme.primaryColor}",
         "secondary": "${customTheme.secondaryColor}",
         "background": "${customTheme.backgroundColor}",
@@ -222,7 +222,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
   const generateIframeCode = () => {
     return `
 <iframe
-  src="https://back.techrecto.com/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}"
+  src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}"
   style="width: 400px; height: 600px; border: none; position: fixed; ${position.replace('-', ': ')}: 20px;"
   allowtransparency="true"
 ></iframe>
@@ -475,7 +475,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
                       <span className="text-white text-xs font-medium ml-2">Chatbot Preview</span>
                     </div>
                     <iframe
-                      src={`https://back.techrecto.com/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&preview=true`}
+                      src={`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&preview=true`}
                       className="w-full h-[500px] sm:h-[600px] border-0"
                       allowtransparency="true"
                       title="Chatbot preview"

@@ -57,7 +57,7 @@ export default function PackagesPage() {
   const fetchPackages = async () => {
     try {
       setIsLoading(true);
-      const { data } = await axios.get('https://back.techrecto.com/api/package/getpackages');
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/package/getpackages`);
       setPackages(enhancePackages(data));
       setError('');
     } catch (err) {
@@ -70,7 +70,7 @@ export default function PackagesPage() {
 
   const fetchSubscription = async () => {
     try {
-      const { data } = await axios.get(`https://back.techrecto.com/api/package/getpackage?userId=${session.user?.id}`);
+      const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/package/getpackage?userId=${session.user?.id}`);
       setUserSubscription(data.userPackage || null);
       console.log('Fetched subscription:', data.userPackage);
     } catch (err) {
@@ -81,7 +81,7 @@ export default function PackagesPage() {
 
   const fetchContent = async () => {
     try {
-           const { data } = await axios.get(`https://back.techrecto.com/api/package/getpackage?userId=${session.user?.id}`);
+           const { data } = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/package/getpackage?userId=${session.user?.id}`);
 console.log('Fetched content:', data);
       setError('');
     } catch (err) {
@@ -93,7 +93,7 @@ console.log('Fetched content:', data);
     try {
       setIsLoading(true);
       console.log('Verifying checkout session:', sessionId);
-      const { data } = await axios.post('https://back.techrecto.com/api/package/stripe/verify-checkout-session', {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/api/package/stripe/verify-checkout-session`, {
         sessionId,
         userId,
       });
@@ -138,7 +138,7 @@ console.log('Fetched content:', data);
         throw new Error('Stripe failed to initialize');
       }
 
-      const { data } = await axios.post('https://back.techrecto.com/api/package/stripe/create-checkout-session', {
+      const { data } = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/api/package/stripe/create-checkout-session`, {
         packageId: selectedPackage,
         userId,
       });

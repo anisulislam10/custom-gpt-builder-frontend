@@ -48,7 +48,7 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
  
   const handleSubmit = async () => {
     try {
-      const response = await fetch('https://back.techrecto.com/api/smtp/save', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -75,7 +75,7 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     setTestStatus(null);
 
     try {
-        const response = await fetch('https://back.techrecto.com/api/smtp/send-test-email', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/send-test-email`, {
             method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(smtpConfig),
