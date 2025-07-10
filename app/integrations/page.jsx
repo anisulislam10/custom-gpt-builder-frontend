@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import SmtpModal from '../components/Smtp';
 import ApiConfigModal from '../components/APiConfig';
-
 export default function SettingsPage() {
   const router = useRouter();
   const { data: session, status } = useSession({
