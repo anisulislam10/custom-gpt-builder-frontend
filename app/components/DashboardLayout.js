@@ -82,8 +82,8 @@ export default function DashboardLayout({ children }) {
     { name: 'Flows', icon: <FiZap />, path: '/flows' },
     { name: 'Chatbot', icon: <FiMessageSquare />, path: '/chatbot' },
     { name: 'Templates', icon: <FiFolder />, path: '#' },
-    { name: 'Integrations', icon: <FiGlobe />, path: '#' },
-    { name: 'Analytics', icon: <FiBarChart2 />, path: '#' },
+    { name: 'Integrations', icon: <FiGlobe />, path: '/integrations' },
+    { name: 'Analytics', icon: <FiBarChart2 />, path: '/analytics' },
     { name: 'Team', icon: <FiUsers />, path: '#' },
     { name: 'Settings', icon: <FiSettings />, path: '/settings' },
   ];

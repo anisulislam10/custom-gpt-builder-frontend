@@ -3,17 +3,27 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 // Async thunk to fetch SMTP config
 export const fetchSmtpConfig = createAsyncThunk(
   'smtp/fetchConfig',
-  async (userId) => {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/get/${userId}`);
-    if (!response.ok) throw new Error('Failed to fetch SMTP config');
-    return await response.json();
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/get/${userId}`);
+      if (!response.ok) throw new Error('Failed to fetch SMTP config');
+      return await response.json();
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
 const smtpSlice = createSlice({
   name: 'smtp',
   initialState: {
-    config: null,
+    config: {
+      host: '',
+      port: '',
+      username: '',
+      password: '',
+      secure: false,
+    },
     loading: false,
     error: null,
   },
@@ -34,11 +44,10 @@ const smtpSlice = createSlice({
       })
       .addCase(fetchSmtpConfig.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
 
 export const { setSmtpConfig } = smtpSlice.actions;
-
-export default smtpSlice.reducer
+export default smtpSlice.reducer;

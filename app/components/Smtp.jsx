@@ -1,6 +1,5 @@
-import React, { useState,useEffect } from 'react';
-import { useSession } from "next-auth/react";
-import { redirect } from "next/navigation";
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSmtpConfig, setSmtpConfig } from '../../store/smtpSlice';
 
@@ -13,21 +12,21 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     port: '',
     username: '',
     password: '',
-    
     secure: false,
   });
- const { data: session, status } = useSession({
+  const { data: session, status } = useSession({
     required: true,
-    // onUnauthenticated() {
-    //   redirect("/login");
-    // }
   });
 
   const [loading, setLoading] = useState(false);
   const [testStatus, setTestStatus] = useState(null);
- 
 
-  // Sync Redux config into local state
+  useEffect(() => {
+    if (isOpen && session?.user?.id) {
+      dispatch(fetchSmtpConfig(session.user.id));
+    }
+  }, [isOpen, session?.user?.id, dispatch]);
+
   useEffect(() => {
     if (savedConfig) {
       setSmtpConfig({
@@ -39,29 +38,29 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
       });
     }
   }, [savedConfig]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setSmtpConfig(prev => ({
+    setSmtpConfig((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
 
-
- 
   const handleSubmit = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId:session?.user?.id, // You can replace this with a real ID from auth context
+          userId: session?.user?.id,
           ...smtpConfig,
         }),
       });
-  
+
       const result = await response.json();
       if (response.ok) {
+        dispatch(setSmtpConfig(smtpConfig)); // Update Redux store
         alert('SMTP config saved!');
         onSave(smtpConfig);
         onClose();
@@ -78,8 +77,8 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
     setTestStatus(null);
 
     try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/send-test-email`, {
-            method: 'POST',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/smtp/send-test-email`, {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(smtpConfig),
       });
@@ -101,22 +100,54 @@ export default function SmtpModal({ isOpen, onClose, onSave }) {
   if (!isOpen) return null;
 
   return (
-<div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center">
-<div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
+    <div className="fixed inset-0 z-[1000] bg-black/60 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">SMTP Configuration</h2>
 
         <div className="space-y-3">
-          <input name="host" value={smtpConfig.host} onChange={handleChange} placeholder="SMTP Host" className="w-full p-2 border rounded" />
-          <input name="port" value={smtpConfig.port} onChange={handleChange} placeholder="SMTP Port" className="w-full p-2 border rounded" type="number" />
-          <input name="username" value={smtpConfig.username} onChange={handleChange} placeholder="Username" className="w-full p-2 border rounded" />
-          <input name="password" value={smtpConfig.password} onChange={handleChange} placeholder="Password" type="password" className="w-full p-2 border rounded" />
+          <input
+            name="host"
+            value={smtpConfig.host}
+            onChange={handleChange}
+            placeholder="SMTP Host"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            name="port"
+            value={smtpConfig.port}
+            onChange={handleChange}
+            placeholder="SMTP Port"
+            className="w-full p-2 border rounded"
+            type="number"
+          />
+          <input
+            name="username"
+            value={smtpConfig.username}
+            onChange={handleChange}
+            placeholder="Username"
+            className="w-full p-2 border rounded"
+          />
+          <input
+            name="password"
+            value={smtpConfig.password}
+            onChange={handleChange}
+            placeholder="Password"
+            type="password"
+            className="w-full p-2 border rounded"
+          />
           <label className="flex items-center space-x-2">
-            <input type="checkbox" name="secure" checked={smtpConfig.secure} onChange={handleChange} />
+            <input
+              type="checkbox"
+              name="secure"
+              checked={smtpConfig.secure}
+              onChange={handleChange}
+            />
             <span>Use SSL/TLS</span>
           </label>
           <p className="text-xs text-gray-500 mt-1 ml-1">
-  Hint: When using Gmail SMTP, for port <strong>465</strong>  set SSL/TLS to <strong>true</strong>.
-</p>
+            Hint: When using Gmail SMTP, for port <strong>465</strong> set SSL/TLS to{' '}
+            <strong>true</strong>.
+          </p>
         </div>
 
         {testStatus && (
