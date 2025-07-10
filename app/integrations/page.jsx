@@ -76,7 +76,7 @@ export default function SettingsPage() {
             openai: { apiKey: '', model: 'gpt-3.5-turbo' },
             deepseek: { apiKey: '', model: 'deepseek-chat' },
             gemini: { apiKey: '', model: 'gemini-pro' },
-            chatbot: { provider: '' },
+            chatbot: { provider: '', providers: [] }, // Added providers to fix potential typo
             provider: 'openai',
           }}
           onSave={(config) => {
