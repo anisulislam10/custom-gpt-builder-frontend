@@ -12,8 +12,6 @@ const InteractionHistory = ({ flowId, userId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
-
-  // Fetch interactions
   useEffect(() => {
     const fetchInteractions = async () => {
       try {
@@ -260,7 +258,7 @@ const InteractionHistory = ({ flowId, userId }) => {
                                   <div className="mb-2">
                                     <span className="font-semibold text-indigo-600">Bot:</span>
                                     <p className="text-gray-800 mt-1">
-                                      {highlightMatch(entry.node.data.label==='Options Node'?`You selected :${entry.userInput}`:entry.node.data.label, searchQuery)}
+                                      {highlightMatch(entry.node.data.label === 'Options Node' ? `You selected :${entry.userInput}` : entry.node.data.label, searchQuery)}
                                     </p>
                                   </div>
                                 )}
