@@ -73,9 +73,11 @@ export default function DashboardLayout({ children }) {
     setSidebarOpen(!sidebarOpen);
   };
   
+  
   const toggleMobileSidebar = () => {
     setMobileSidebarOpen(!mobileSidebarOpen);
   };
+
 
   const navItems = [
     { name: 'Dashboard', icon: <FiHome />, path: '/dashboard' },
