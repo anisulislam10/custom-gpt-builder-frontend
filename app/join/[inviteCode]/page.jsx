@@ -10,6 +10,7 @@ export default function JoinPage() {
   const { data: session, status } = useSession();
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  console.log("token",session)
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -28,7 +29,7 @@ export default function JoinPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.accessToken}`,
+            Authorization: `Bearer ${session.user.token}`,
           },
           body: JSON.stringify({ userId: session.user.id }),
         }
