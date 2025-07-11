@@ -40,7 +40,7 @@ export default function JoinPage() {
       }
       const data = await response.json();
       alert('Successfully joined the flow!');
-      router.push(`/flows/${data.flowId}/edit`);
+      router.push(`/chatbot?flow=${data.flowId}`);
     } catch (err) {
       setError(err.message);
     } finally {
