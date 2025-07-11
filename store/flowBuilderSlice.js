@@ -1,4 +1,3 @@
-// slices/flowBuilderSlice.js
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
@@ -7,52 +6,40 @@ const initialState = {
   edges: [],
   flows: [],
   currentFlowId: null,
-  flowName: '',
-  websiteDomain: '',
+    websiteDomain: '', // Add this if missing
+
   status: 'idle',
-  error: null,
+  error: null
 };
 
 // Helper function to handle API errors
 const handleApiError = (error) => {
   if (error.response) {
     // Server responded with a status code outside 2xx
-    const message = error.response.data?.message || 'Request failed';
-    const status = error.response.status;
-    if (status === 401) {
-      return { message: 'Authentication failed. Please log in again.', status };
-    } else if (status === 403) {
-      return { message: 'You do not have permission to perform this action.', status };
-    }
-    return { message, status, data: error.response.data };
+    return {
+      message: error.response.data?.message || 'Request failed',
+      status: error.response.status,
+      data: error.response.data
+    };
   } else if (error.request) {
     // Request was made but no response received
-    return { message: 'No response from server. Please check your network.', status: 0 };
+    return { message: 'No response from server', status: 0 };
   }
   // Something happened in setting up the request
   return { message: error.message || 'Unknown error', status: 0 };
 };
 
-// Async thunks with access token
+// Async thunks
 export const saveFlow = createAsyncThunk(
   'flow/saveFlow',
-  async ({ userId, nodes, edges, flowName, websiteDomain, accessToken }, { rejectWithValue }) => {
+  async ({ userId, nodes, edges, flowName, websiteDomain }, { rejectWithValue }) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`,
-        {
-          nodes,
-          edges,
-          flowName: flowName || `Flow-${Date.now()}`,
-          websiteDomain,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`, {
+        nodes,
+        edges,
+        flowName: flowName || `Flow-${Date.now()}`,
+        websiteDomain
+      });
       return response.data;
     } catch (error) {
       const errorInfo = handleApiError(error);
@@ -63,28 +50,22 @@ export const saveFlow = createAsyncThunk(
     }
   }
 );
-
 export const loadFlows = createAsyncThunk(
   'flow/loadFlows',
-  async ({ userId, accessToken }, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
     }
   }
 );
-
 export const loadFlows2 = createAsyncThunk(
   'flow/loadFlows2',
-  async ({ userId, accessToken }, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/user/${userId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/user/${userId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -94,19 +75,17 @@ export const loadFlows2 = createAsyncThunk(
 
 export const loadFlow = createAsyncThunk(
   'flow/loadFlow',
-  async ({ userId, flowId, accessToken }, { rejectWithValue }) => {
+  async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`);
       // Normalize edges data
-      const edges = (response.data.edges || []).map((edge) => ({
+      const edges = (response.data.edges || []).map(edge => ({
         ...edge,
         id: edge.id || `edge-${edge.source}-${edge.target}-${Date.now()}`,
         sourceHandle: edge.sourceHandle || null,
         targetHandle: edge.targetHandle || null,
         type: edge.type || 'default',
-        animated: edge.animated !== undefined ? edge.animated : true,
+        animated: edge.animated !== undefined ? edge.animated : true
       }));
       return { ...response.data, edges };
     } catch (error) {
@@ -114,23 +93,15 @@ export const loadFlow = createAsyncThunk(
     }
   }
 );
-
 export const updateFlow = createAsyncThunk(
   'flow/updateFlow',
-  async ({ userId, flowId, nodes, edges, websiteDomain, accessToken }, { rejectWithValue }) => {
+  async ({ userId, flowId, nodes, edges, websiteDomain }, { rejectWithValue }) => {
     try {
-      const updateData = { nodes, edges };
-      if (websiteDomain) updateData.websiteDomain = websiteDomain;
-      const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`,
-        updateData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      const response = await axios.put(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`, {
+        nodes,
+        edges,
+        websiteDomain
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
@@ -140,17 +111,16 @@ export const updateFlow = createAsyncThunk(
 
 export const deleteFlow = createAsyncThunk(
   'flow/deleteFlow',
-  async ({ userId, flowId, accessToken }, { rejectWithValue }) => {
+  async ({ userId, flowId }, { rejectWithValue }) => {
     try {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/${userId}/${flowId}`);
       return flowId;
     } catch (error) {
       return rejectWithValue(handleApiError(error).message);
     }
   }
 );
+
 
 const flowBuilderSlice = createSlice({
   name: 'flowBuilder',
@@ -162,24 +132,24 @@ const flowBuilderSlice = createSlice({
     setEdges: (state, action) => {
       state.edges = action.payload;
     },
-    updateNode: (state, action) => {
-      const { id, data, position } = action.payload;
-      console.log('updateNode reducer called:', { id, data, position });
-      const nodeIndex = state.nodes.findIndex((node) => node.id === id);
-      if (nodeIndex >= 0) {
-        state.nodes[nodeIndex] = {
-          ...state.nodes[nodeIndex],
-          data: {
-            ...state.nodes[nodeIndex].data,
-            ...data,
-          },
-          ...(position && { position }),
-        };
-        console.log(`Node ${id} updated in state:`, state.nodes[nodeIndex]);
-      } else {
-        console.error(`Node with id ${id} not found in state`, state.nodes);
-      }
-    },
+updateNode: (state, action) => {
+  const { id, data, position } = action.payload;
+  console.log('updateNode reducer called:', { id, data, position });
+  const nodeIndex = state.nodes.findIndex((node) => node.id === id);
+  if (nodeIndex >= 0) {
+    state.nodes[nodeIndex] = {
+      ...state.nodes[nodeIndex],
+      data: {
+        ...state.nodes[nodeIndex].data,
+        ...data,
+      },
+      ...(position && { position }),
+    };
+    console.log(`Node ${id} updated in state:`, state.nodes[nodeIndex]);
+  } else {
+    console.error(`Node with id ${id} not found in state`, state.nodes);
+  }
+},
     addNode: (state, action) => {
       state.nodes.push(action.payload);
     },
@@ -187,22 +157,21 @@ const flowBuilderSlice = createSlice({
       state.nodes = [];
       state.edges = [];
       state.currentFlowId = null;
-      state.flowName = '';
-      state.websiteDomain = '';
       state.status = 'idle';
       state.error = null;
     },
-    setFlowName: (state, action) => {
+        setFlowName: (state, action) => {
       state.flowName = action.payload;
     },
     setCurrentFlow: (state, action) => {
       state.currentFlowId = action.payload;
-    },
-    setWebsiteDomain: (state, action) => {
+    }, setWebsiteDomain: (state, action) => {
       state.websiteDomain = action.payload;
     },
-    resetFlowState: () => initialState,
+    resetFlowState: () => initialState
+    
   },
+     
   extraReducers: (builder) => {
     builder
       .addCase(saveFlow.pending, (state) => {
@@ -212,9 +181,8 @@ const flowBuilderSlice = createSlice({
       .addCase(saveFlow.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.currentFlowId = action.payload._id;
-        state.flowName = action.payload.name;
-        state.websiteDomain = action.payload.websiteDomain;
-        const existingIndex = state.flows.findIndex((flow) => flow._id === action.payload._id);
+        // Update flows list
+        const existingIndex = state.flows.findIndex(flow => flow._id === action.payload._id);
         if (existingIndex >= 0) {
           state.flows[existingIndex] = action.payload;
         } else {
@@ -222,18 +190,6 @@ const flowBuilderSlice = createSlice({
         }
       })
       .addCase(saveFlow.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload;
-      })
-      .addCase(loadFlows.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(loadFlows.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.flows = action.payload;
-      })
-      .addCase(loadFlows.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       })
@@ -258,8 +214,12 @@ const flowBuilderSlice = createSlice({
         state.nodes = action.payload.nodes || [];
         state.edges = action.payload.edges || [];
         state.currentFlowId = action.payload._id;
-        state.flowName = action.payload.flowName;
-        state.websiteDomain = action.payload.websiteDomain;
+                state.flowName = action.payload.flowName; // Load websiteDomain
+        state.currentFlowId = action.payload._id;
+      state.status = 'idle';
+
+                state.websiteDomain = action.payload.websiteDomain; // Load websiteDomain
+
       })
       .addCase(loadFlow.rejected, (state, action) => {
         state.status = 'failed';
@@ -271,15 +231,19 @@ const flowBuilderSlice = createSlice({
       })
       .addCase(updateFlow.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        const index = state.flows.findIndex((flow) => flow._id === action.payload._id);
+        // Update in flows list
+        const index = state.flows.findIndex(flow => flow._id === action.payload._id);
         if (index >= 0) {
           state.flows[index] = action.payload;
         }
+        // Update current flow if it's the one being updated
         if (state.currentFlowId === action.payload._id) {
           state.nodes = action.payload.nodes || [];
           state.edges = action.payload.edges || [];
-          state.flowName = action.payload.name;
-          state.websiteDomain = action.payload.websiteDomain;
+                  state.currentFlowId = action.payload._id;
+
+                    state.websiteDomain = action.payload.websiteDomain; // Update websiteDomain
+
         }
       })
       .addCase(updateFlow.rejected, (state, action) => {
@@ -292,20 +256,18 @@ const flowBuilderSlice = createSlice({
       })
       .addCase(deleteFlow.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.flows = state.flows.filter((flow) => flow._id !== action.payload);
+        state.flows = state.flows.filter(flow => flow._id !== action.payload);
         if (state.currentFlowId === action.payload) {
           state.nodes = [];
           state.edges = [];
           state.currentFlowId = null;
-          state.flowName = '';
-          state.websiteDomain = '';
         }
       })
       .addCase(deleteFlow.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });
-  },
+  }
 });
 
 export const {
@@ -316,8 +278,8 @@ export const {
   clearFlow,
   setCurrentFlow,
   resetFlowState,
-  setFlowName,
-  setWebsiteDomain,
+setFlowName,
+  setWebsiteDomain
 } = flowBuilderSlice.actions;
 
 export default flowBuilderSlice.reducer;
