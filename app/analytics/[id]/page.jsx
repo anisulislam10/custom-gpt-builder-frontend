@@ -4,13 +4,17 @@ import { Bar, Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 import { motion } from 'framer-motion';
 import { useParams } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+
 
 // Register Chart.js components
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 export default function StatisticsPage() {
   const { id } = useParams();
-  const flowId = id;
+  const flowId = id; // Flow ID from URL params
+const { data: session } = useSession();
 
   const [stats, setStats] = useState({
     totals: { daily: 0, weekly: 0, monthly: 0, yearly: 0, allTime: 0 },
@@ -18,67 +22,40 @@ export default function StatisticsPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteLink, setInviteLink] = useState('');
-  const [inviteError, setInviteError] = useState(null);
-  const [userId] = useState('user123'); // Replace with actual user ID from auth context
 
   // Fetch statistics
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/statistics/${flowId}`);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch statistics: ${response.statusText}`);
-        }
-        const data = await response.json();
-        setStats(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+  
+useEffect(() => {
+  const fetchStats = async () => {
+    try {
+      if (!session?.user?.token) return;
+
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/statistics/${flowId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.user.token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch statistics: ${response.statusText}`);
       }
-    };
 
-    if (flowId) {
-      fetchStats();
+      const data = await response.json();
+      setStats(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  }, [flowId]);
-
-  // Generate invite link
-  const handleGenerateInvite = async () => setTimeout(() => setShowInviteModal(true), 1000);
-  // const handleGenerateInvite = async () => {
-  //   try {
-  //     const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/invites`, {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({ flowId, userId, role: 'collaborator' }),
-  // ELEMENTS OF THE ABOVE CODE ARE OMITTED TO PRESERVE THE ORIGINAL CONTENT OF THE CODE
-  //     });
-  //     if (!response.ok) {
-  //       throw new Error(`Failed to generate invite: ${response.statusText}`);
-  //     }
-  //     const data = await response.json();
-  //     setInviteLink(data.inviteLink);
-  //     setInviteError(null);
-  //   } catch (err) {
-  //     setInviteError(err.message);
-  //   }
-  // };
-
-  // Copy invite link to clipboard
-  const handleCopyLink = () => {
-    navigator.clipboard.write(inviteLink);
-    alert('Invite link copied to clipboard!');
   };
 
-  // Close modal
-  const handleCloseModal = () => {
-    setShowInviteModal(false);
-    setInviteLink('');
-    setInviteError(null);
-  };
+  if (flowId && session?.user?.token) {
+    fetchStats();
+  }
+}, [flowId, session]);
+
 
   // Bar chart data for total unique users
   const barData = {
@@ -100,7 +77,7 @@ export default function StatisticsPage() {
     ],
   };
 
-  // Pie chart data for user distribution
+  // Pie chart data for user distribution by time period
   const pieData = {
     labels: ['Daily', 'Weekly', 'Monthly', 'Yearly'],
     datasets: [
@@ -123,14 +100,14 @@ export default function StatisticsPage() {
     ],
   };
 
-  // Bar chart data for country distribution
+  // Bar chart data for country distribution (e.g., daily interactions by country)
   const countryBarData = {
     labels: stats.byCountry.map((countryStat) => countryStat.country || 'Unknown'),
     datasets: [
       {
         label: 'Daily Unique Users by Country',
         data: stats.byCountry.map((countryStat) => countryStat.daily),
-        backgroundColor: 'rgba(34, 197, 94, 0.6)',
+        backgroundColor: 'rgba(34, 197, 94, 0.6)', // Green for country data
         borderColor: 'rgba(34, 197, 94, 1)',
         borderWidth: 1,
       },
@@ -166,57 +143,6 @@ export default function StatisticsPage() {
         <p className="text-gray-600 text-center mb-12">
           Unique users who interacted with your chatbot (Flow ID: {flowId})
         </p>
-
-        {/* Invite Button */}
-        <div className="text-center mb-8">
-          <button
-            onClick={handleGenerateInvite}
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition"
-          >
-            Invite Collaborators
-          </button>
-        </div>
-
-        {/* Invite Modal */}
-        {showInviteModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <motion.div
-              className="bg-white p-6 rounded-xl shadow-lg max-w-md w-full"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-            >
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Invite Collaborators</h2>
-              {inviteError ? (
-                <p className="text-red-600 mb-4">{inviteError}</p>
-              ) : (
-                <>
-                  <p className="text-gray-600 mb-4">Share this link to invite others to collaborate on this flow:</p>
-                  <input
-                    type="text"
-                    value={inviteLink}
-                    readOnly
-                    className="w-full p-2 border rounded-lg mb-4"
-                  />
-                  <div className="flex justify-end gap-4">
-                    <button
-                      onClick={handleCopyLink}
-                      className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-                    >
-                      Copy Link
-                    </button>
-                    <button
-                      onClick={handleCloseModal}
-                      className="bg-gray-300 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-400 transition"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          </div>
-        )}
 
         {/* Summary Cards for Totals */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12">

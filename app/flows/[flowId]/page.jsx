@@ -155,10 +155,15 @@ export default function InvitePage() {
     }
   };
 
-  const handleCopyLink = (link) => {
-    navigator.clipboard.write(link);
-    alert('Invite link copied to clipboard!');
-  };
+  const handleCopyLink = async (link) => {
+  try {
+    await navigator.clipboard.writeText(link);
+    alert('Copied!');
+  } catch (err) {
+    alert('Failed to copy!');
+    console.error(err);
+  }
+};
 
   if (status === 'loading' || (loading && invites.length === 0 && collaborators.length === 0)) {
     return (
