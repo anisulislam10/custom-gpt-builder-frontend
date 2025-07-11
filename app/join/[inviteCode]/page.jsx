@@ -23,7 +23,7 @@ export default function JoinPage() {
     try {
       setLoading(true);
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/flow/invites/accept/${inviteCode}`,
+        `${process.env.NEXT_PUBLIC_API_BASE}/api/invites/accept/${inviteCode}`,
         {
           method: 'POST',
           headers: {
