@@ -141,17 +141,6 @@ console.log('[FlowCard] Rendered flow:', flow);
               <BsBarChartSteps className="mr-2 transition-transform group-hover/edit:rotate-12" /> View Flow Statistics
             </motion.span>
           </Link>
-              <Link
-            href={`/analytics/flow/${flow._id}`}
-            className="flex-1 flex items-center justify-center px-4 py-2.5 text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 group/edit"
-          >
-            <motion.span
-              whileHover={{ scale: 1.05 }}
-              className="flex items-center text-sm font-medium"
-            >
-              <BsBarChartSteps className="mr-2 transition-transform group-hover/edit:rotate-12" /> View Flow Statistics
-            </motion.span>
-          </Link>
           <AnimatePresence>
           
           </AnimatePresence>

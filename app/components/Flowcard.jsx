@@ -16,6 +16,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { FaShare } from 'react-icons/fa';
 
 const FlowCard = ({ flow, onDelete, userId, userEmail }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -146,6 +147,17 @@ console.log('[FlowCard] Rendered flow:', flow);
               className="flex items-center text-sm font-medium"
             >
               <FiEdit2 className="mr-2 transition-transform group-hover/edit:rotate-12" /> Edit Flow
+            </motion.span>
+          </Link>
+            <Link
+            href={`/flows/${flow._id}`}
+            className="flex-1 flex items-center justify-center px-4 py-2.5 text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-sm hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 group/edit"
+          >
+            <motion.span
+              whileHover={{ scale: 1.05 }}
+              className="flex items-center text-sm font-medium"
+            >
+              <FaShare className="mr-2 transition-transform group-hover/edit:rotate-12" /> Invite
             </motion.span>
           </Link>
           <AnimatePresence>

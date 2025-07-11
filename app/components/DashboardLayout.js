@@ -84,7 +84,7 @@ export default function DashboardLayout({ children }) {
     { name: 'Templates', icon: <FiFolder />, path: '#' },
     { name: 'Integrations', icon: <FiGlobe />, path: '/integrations' },
     { name: 'Analytics', icon: <FiBarChart2 />, path: '/analytics' },
-    { name: 'Team', icon: <FiUsers />, path: '#' },
+    // { name: 'Team', icon: <FiUsers />, path: '#' },
     { name: 'Settings', icon: <FiSettings />, path: '/settings' },
   ];
   

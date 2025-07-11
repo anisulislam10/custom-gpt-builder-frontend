@@ -1,4 +1,3 @@
-// app/invite/[flowId]/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -16,6 +15,7 @@ export default function InvitePage() {
   const [collaborators, setCollaborators] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [access, setAccess] = useState({ allowed: false }); // Fix typo: acess -> access, default to not allowed
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -27,22 +27,28 @@ export default function InvitePage() {
       const fetchData = async () => {
         try {
           setLoading(true);
-          const [invitesRes, collaboratorsRes] = await Promise.all([
+          const [invitesRes, collaboratorsRes, accessRes] = await Promise.all([
             fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/invites/${flowId}`, {
               headers: { Authorization: `Bearer ${session.user.token}` },
             }),
             fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/invites/collaborators/${flowId}`, {
               headers: { Authorization: `Bearer ${session.user.token}` },
             }),
+            fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/flow/get/${session?.user?.id}/${flowId}`, {
+              headers: { Authorization: `Bearer ${session.user.token}` },
+            }),
           ]);
 
           if (!invitesRes.ok) throw new Error(`Failed to fetch invites: ${invitesRes.statusText}`);
           if (!collaboratorsRes.ok) throw new Error(`Failed to fetch collaborators: ${collaboratorsRes.statusText}`);
+          if (!accessRes.ok) throw new Error(`Failed to fetch access permission: ${accessRes.statusText}`);
 
           const invitesData = await invitesRes.json();
           const collaboratorsData = await collaboratorsRes.json();
-          setInvites(invitesData.invites);
-          setCollaborators(collaboratorsData.collaborators);
+          const accessData = await accessRes.json();
+          setAccess(accessData); // Set access state
+          setInvites(invitesData.invites || []);
+          setCollaborators(collaboratorsData.collaborators || []);
         } catch (err) {
           setError(err.message);
         } finally {
@@ -54,6 +60,10 @@ export default function InvitePage() {
   }, [status, session, flowId, router]);
 
   const handleGenerateInvite = async () => {
+    if (!access.allowed) {
+      setError('You do not have permission to generate invites for this flow.');
+      return;
+    }
     try {
       setLoading(true);
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/invites`, {
@@ -80,6 +90,10 @@ export default function InvitePage() {
   };
 
   const handleSendEmail = async () => {
+    if (!access.allowed) {
+      setError('You do not have permission to send invites for this flow morir');
+      return;
+    }
     if (!email.match(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
       setError('Please enter a valid email address');
       return;
@@ -111,6 +125,10 @@ export default function InvitePage() {
   };
 
   const handleDeactivateInvite = async (inviteCode) => {
+    if (!access.allowed) {
+      setError('You do not have permission to deactivate invites for this flow.');
+      return;
+    }
     try {
       setLoading(true);
       const response = await fetch(
@@ -164,14 +182,17 @@ export default function InvitePage() {
           Invite others to collaborate on your chatbot project (Flow ID: {flowId})
         </p>
 
-        {error && (
-          <div className="text-red-600 text-center p-4 bg-red-50 rounded-lg mb-8">
-            Error: {error}
-          </div>
-        )}
+      
 
-        {/* Invite Form */}
-        <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-12">
+        {!access.allowed? (
+          <div className="text-yellow-600 text-center p-4 bg-yellow-50 rounded-lg mb-8">
+            You do not have permission to invite collaborators to this flow. Only flow owners or admins can send invites.
+          </div>
+        ):
+        (
+          <>
+        
+          <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-12">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Create New Invitation</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
@@ -182,6 +203,7 @@ export default function InvitePage() {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Enter email address"
+                disabled={!access.allowed} // Disable if not allowed
               />
             </div>
             <div>
@@ -190,6 +212,7 @@ export default function InvitePage() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 className="w-full p-2 border rounded-lg focus:ring-indigo-500 focus:border-indigo-500"
+                disabled={!access.allowed} // Disable if not allowed
               >
                 <option value="collaborator">Collaborator</option>
                 <option value="admin">Admin</option>
@@ -199,14 +222,14 @@ export default function InvitePage() {
           <div className="flex gap-4">
             <button
               onClick={handleSendEmail}
-              disabled={loading}
+              disabled={loading || !access.allowed} // Disable if not allowed
               className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition disabled:bg-indigo-300"
             >
               Send Email Invite
             </button>
             <button
               onClick={handleGenerateInvite}
-              disabled={loading}
+              disabled={loading || !access.allowed} // Disable if not allowed
               className="bg-gray-300 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-400 transition disabled:bg-gray-200"
             >
               Generate Link
@@ -277,7 +300,8 @@ export default function InvitePage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <button
                           onClick={() => handleDeactivateInvite(invite.inviteCode)}
-                          className="text-red-600 hover:text-red-800"
+                          disabled={!access.allowed} // Disable if not allowed
+                          className="text-red-600 hover:text-red-800 disabled:text-gray-400"
                         >
                           Deactivate
                         </button>
@@ -338,6 +362,11 @@ export default function InvitePage() {
             <p className="text-gray-500 text-center">No collaborators found</p>
           )}
         </div>
+        </>)
+        }
+
+        {/* Invite Form */}
+      
       </motion.div>
     </div>
   );
