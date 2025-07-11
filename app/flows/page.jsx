@@ -34,7 +34,7 @@ export default function FlowsPage() {
   const [showSortOptions, setShowSortOptions] = useState(false);
   useEffect(() => {
     if (session?.user?.id) {
-      dispatch(loadFlows2(session.user.id));
+      dispatch(loadFlows2({userId:session.user.id,accessToken:session?.user.token}));
     }
   }, [session?.user?.id, dispatch]);
 
@@ -48,7 +48,7 @@ export default function FlowsPage() {
 
   const filteredFlows = flows
     .filter((flow) => {
-      const matchesSearch = flow.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = flow?.name?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesFilter =
         filter === 'all' ||
         (filter === 'active' && flow.isActive) ||

@@ -619,7 +619,7 @@ export default function FlowBuilder() {
   }, [dispatch, session, flowId, flowState, nodes, edges, flowName, websiteDomain, theme]);
   useEffect(() => {
     if (session?.user?.id && flowId) {
-      dispatch(loadFlow({ userId: session.user.id, flowId }));
+      dispatch(loadFlow({ userId: session.user.id, flowId,accessToken:session?.user.token }));
     }
   }, [session?.user?.id, flowId, dispatch]);
   // Undo/Redo functionality
