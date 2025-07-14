@@ -14,11 +14,11 @@ export default function ChatbotLoader() {
         websiteDomain: "https://custom-gpt-builder-frontend.vercel.app",
         position: "bottom-right",
         theme: {
-          primary: "#7C3AED",
-          secondary: "#F59E0B",
-          background: "#FFFFFF",
+          primary: "#058a88",
+          secondary: "#2f2640",
+          background: "#c33737",
           text: "#1F2937",
-          buttonText: "#FFFFFF"
+          buttonText: "#142608"
         }
       };
       setTimeout(() => {

@@ -1,8 +1,9 @@
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { FiCopy, FiEye, FiCheck, FiCode, FiSettings } from 'react-icons/fi';
-import { useSelector } from 'react-redux';
+import { useSelector } from  'react-redux';
 import { toast, Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Prism from 'prismjs';
@@ -27,6 +28,50 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
   const [activeTab, setActiveTab] = useState('code');
   const flowState = useSelector((state) => state.flowBuilder);
   const { data: session } = useSession();
+  const iframeRef = useRef(null);
+
+  // Update ChatbotConfig and notify iframe on theme/position change
+  useEffect(() => {
+    const config = {
+      flowId: flowId || 'your-flow-id',
+      userId: session?.user?.id || 'your-user-id',
+      websiteDomain: websiteDomain || 'your-website.com',
+      position,
+      theme: {
+        primary: customTheme.primaryColor,
+        secondary: customTheme.secondaryColor,
+        background: customTheme.backgroundColor,
+        text: customTheme.textColor,
+        buttonText: customTheme.buttonTextColor,
+      },
+    };
+
+    window.ChatbotConfig = config;
+
+    // Notify iframe of config changes
+    if (previewMode && iframeRef.current && iframeRef.current.contentWindow) {
+      try {
+        iframeRef.current.contentWindow.postMessage(
+          {
+            type: 'updateChatbotConfig',
+            config,
+          },
+          '*'
+        );
+      } catch (error) {
+        console.error('[EmbedWidget] Error sending postMessage to iframe:', error);
+      }
+    }
+
+    // Re-initialize chatbot if already loaded
+    if (window.initChatbot && document.getElementById('chatbot-container')) {
+      try {
+        window.initChatbot();
+      } catch (error) {
+        console.error('[EmbedWidget] Error re-initializing chatbot:', error);
+      }
+    }
+  }, [customTheme, position, flowId, session, websiteDomain, previewMode]);
 
   useEffect(() => {
     if (previewMode && nodes.length > 0) {
@@ -186,13 +231,14 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x${customTheme.backgroundColor.replace('#', '')}))
       ..loadRequest(Uri.parse(
-          '${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${websiteDomain || 'your-website.com'}&theme=
-        "primary": "${customTheme.primaryColor}",
-        "secondary": "${customTheme.secondaryColor}",
-        "background": "${customTheme.backgroundColor}",
-        "text": "${customTheme.textColor}",
-        "buttonText": "${customTheme.buttonTextColor}"
-      }))}'));
+          '${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
+            primary: customTheme.primaryColor,
+            secondary: customTheme.secondaryColor,
+            background: customTheme.backgroundColor,
+            text: customTheme.textColor,
+            buttonText: customTheme.buttonTextColor,
+          }))}&position=${position}&preview=true'
+      ));
   }
 
   @override
@@ -201,7 +247,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
       width: 380,
       height: 600,
       decoration: BoxDecoration(
-        color: Color(0x${customTheme.backgroundColor.replace('#', '')})),
+        color: Color(0x${customTheme.backgroundColor.replace('#', '')}),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Color(0x${customTheme.primaryColor.replace('#', '')}), width: 2),
         boxShadow: [
@@ -222,7 +268,13 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
   const generateIframeCode = () => {
     return `
 <iframe
-  src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}"
+  src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
+    primary: customTheme.primaryColor,
+    secondary: customTheme.secondaryColor,
+    background: customTheme.backgroundColor,
+    text: customTheme.textColor,
+    buttonText: customTheme.buttonTextColor,
+  }))}&position=${position}&preview=true"
   style="width: 400px; height: 600px; border: none; position: fixed; ${position.replace('-', ': ')}: 20px;"
   allowtransparency="true"
 ></iframe>
@@ -241,6 +293,9 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
           borderRadius: '8px',
         },
       });
+    }).catch((error) => {
+      console.error('[EmbedWidget] Error copying to clipboard:', error);
+      toast.error('Failed to copy code');
     });
   };
 
@@ -270,7 +325,7 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
   };
 
   return (
-       <motion.div
+    <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -397,44 +452,44 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
             </div>
 
             {/* Theme Customizer */}
-           <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border border-gray-100">
-  <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
-    <BsFillCollectionFill className="text-purple-600 w-5 h-5" /> Theme Colors
-  </h3>
-  <div className="grid grid-cols-1 gap-4 sm:gap-5">
-    {[
-      { label: 'Primary', key: 'primaryColor' },
-      { label: 'Secondary', key: 'secondaryColor' },
-      { label: 'Background', key: 'backgroundColor' },
-      { label: 'Text', key: 'textColor' },
-      { label: 'Button Text', key: 'buttonTextColor' },
-    ].map(({ label, key }) => (
-      <motion.div
-        key={key}
-        className="flex items-center gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
-        whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
-      >
-        <label className="w-24 sm:w-28 text-sm sm:text-base font-medium text-gray-800">{label}</label>
-        <motion.input
-          type="color"
-          value={customTheme[key]}
-          onChange={(e) => handleThemeChange(key, e.target.value)}
-          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg cursor-pointer border-2 border-gray-200 hover:border-purple-400 focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.2 }}
-        />
-        <input
-          type="text"
-          value={customTheme[key]}
-          onChange={(e) => handleThemeChange(key, e.target.value)}
-          className="flex-1 px-3 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600 hover:border-gray-300 transition-colors"
-          placeholder="#FFFFFF"
-        />
-      </motion.div>
-    ))}
-  </div>
-</div>
+            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border border-gray-100">
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
+                <BsFillCollectionFill className="text-purple-600 w-5 h-5" /> Theme Colors
+              </h3>
+              <div className="grid grid-cols-1 gap-4 sm:gap-5">
+                {[
+                  { label: 'Primary', key: 'primaryColor' },
+                  { label: 'Secondary', key: 'secondaryColor' },
+                  { label: 'Background', key: 'backgroundColor' },
+                  { label: 'Text', key: 'textColor' },
+                  { label: 'Button Text', key: 'buttonTextColor' },
+                ].map(({ label, key }) => (
+                  <motion.div
+                    key={key}
+                    className="flex items-center gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-lg border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                    whileHover={{ scale: 1.01 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <label className="w-24 sm:w-28 text-sm sm:text-base font-medium text-gray-800">{label}</label>
+                    <motion.input
+                      type="color"
+                      value={customTheme[key]}
+                      onChange={(e) => handleThemeChange(key, e.target.value)}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg cursor-pointer border-2 border-gray-200 hover:border-purple-400 focus:ring-2 focus:ring-purple-600 focus:border-purple-600"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ duration: 0.2 }}
+                    />
+                    <input
+                      type="text"
+                      value={customTheme[key]}
+                      onChange={(e) => handleThemeChange(key, e.target.value)}
+                      className="flex-1 px-3 py-2 sm:py-2.5 text-sm sm:text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-purple-600 hover:border-gray-300 transition-colors"
+                      placeholder="#FFFFFF"
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
           </motion.div>
         )}
 
@@ -463,7 +518,6 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="w-full max-w-[360px] sm:max-w-[400px] bg-gray-100 rounded-2xl shadow-xl overflow-hidden p-3 sm:p-4 border border-gray-200 relative"
                 >
-                  {/* Device-like frame */}
                   <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-300 rounded-full"></div>
                   <div className="bg-white rounded-lg overflow-hidden">
                     <div className="h-8 bg-gradient-to-r from-purple-600 to-amber-500 flex items-center px-3">
@@ -475,7 +529,14 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
                       <span className="text-white text-xs font-medium ml-2">Chatbot Preview</span>
                     </div>
                     <iframe
-                      src={`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&preview=true`}
+                      ref={iframeRef}
+                      src={`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
+                        primary: customTheme.primaryColor,
+                        secondary: customTheme.secondaryColor,
+                        background: customTheme.backgroundColor,
+                        text: customTheme.textColor,
+                        buttonText: customTheme.buttonTextColor,
+                      }))}&position=${position}&preview=true`}
                       className="w-full h-[500px] sm:h-[600px] border-0"
                       allowtransparency="true"
                       title="Chatbot preview"
@@ -503,4 +564,4 @@ const CodeBlock = ({ code, language }) => {
   );
 };
 
-export default EmbedWidget
+export default EmbedWidget;
