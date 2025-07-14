@@ -1,9 +1,8 @@
-
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 import { FiCopy, FiEye, FiCheck, FiCode, FiSettings } from 'react-icons/fi';
-import { useSelector } from  'react-redux';
+import { useSelector } from 'react-redux';
 import { toast, Toaster } from 'react-hot-toast';
 import { useSession } from 'next-auth/react';
 import Prism from 'prismjs';
@@ -26,6 +25,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
   const [previewMode, setPreviewMode] = useState(false);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState('code');
+  const [iframeReady, setIframeReady] = useState(false); // Track iframe load status
   const flowState = useSelector((state) => state.flowBuilder);
   const { data: session } = useSession();
   const iframeRef = useRef(null);
@@ -48,8 +48,8 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
 
     window.ChatbotConfig = config;
 
-    // Notify iframe of config changes
-    if (previewMode && iframeRef.current && iframeRef.current.contentWindow) {
+    // Notify iframe of config changes if it's ready
+    if (previewMode && iframeReady && iframeRef.current?.contentWindow) {
       try {
         iframeRef.current.contentWindow.postMessage(
           {
@@ -63,7 +63,7 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
       }
     }
 
-    // Re-initialize chatbot if already loaded
+    // Re-initialize chatbot if already loaded in the parent window
     if (window.initChatbot && document.getElementById('chatbot-container')) {
       try {
         window.initChatbot();
@@ -71,7 +71,17 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
         console.error('[EmbedWidget] Error re-initializing chatbot:', error);
       }
     }
-  }, [customTheme, position, flowId, session, websiteDomain, previewMode]);
+  }, [customTheme, position, flowId, session, websiteDomain, previewMode, iframeReady]);
+
+  // Handle iframe load to set iframeReady
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const onLoad = () => setIframeReady(true);
+    iframe.addEventListener('load', onLoad);
+    return () => iframe.removeEventListener('load', onLoad);
+  }, [previewMode]);
 
   useEffect(() => {
     if (previewMode && nodes.length > 0) {
@@ -87,9 +97,16 @@ const EmbedWidget = ({ nodes, edges, flowId, websiteDomain }) => {
     } else {
       setCurrentNodeId(null);
       setChatHistory([]);
+      setIframeReady(false); // Reset iframeReady when preview is toggled off
     }
   }, [previewMode, nodes, edges]);
-
+useEffect(() => {
+  if (activeTab === 'code' || activeTab === 'customize') {
+    setPreviewMode(true);
+  } else {
+    setPreviewMode(false);
+  }
+}, [activeTab]);
   const generateJsSnippet = () => {
     return `
 <script crossorigin="anonymous" src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/script.js"></script>
@@ -265,8 +282,15 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
     `.trim();
   };
 
-  const generateIframeCode = () => {
-    return `
+const generateIframeCode = () => {
+  const [vertical, horizontal] = position.split('-');
+  const positionStyles = {
+    'top-left': 'top: 20px; left: 20px;',
+    'top-right': 'top: 20px; right: 20px;',
+    'bottom-left': 'bottom: 20px; left: 20px;',
+    'bottom-right': 'bottom: 20px; right: 20px;',
+  };
+  return `
 <iframe
   src="${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
     primary: customTheme.primaryColor,
@@ -275,11 +299,11 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
     text: customTheme.textColor,
     buttonText: customTheme.buttonTextColor,
   }))}&position=${position}&preview=true"
-  style="width: 400px; height: 600px; border: none; position: fixed; ${position.replace('-', ': ')}: 20px;"
+  style="width: 400px; height: 600px; border: none; position: fixed; ${positionStyles[position] || 'bottom: 20px; right: 20px;'}"
   allowtransparency="true"
 ></iframe>
-    `.trim();
-  };
+  `.trim();
+};
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -300,9 +324,16 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
   };
 
   const handleThemeChange = (key, value) => {
-    setCustomTheme((prev) => ({ ...prev, [key]: value }));
-  };
+    
+    // Validate hex color
+    if (/^#[0-9A-Fa-f]{6}$/.test(value) || value === '') {
+      setCustomTheme((prev) => ({ ...prev, [key]: value }));
+    } else {
+      toast.error('Please enter a valid hex color (e.g., #FFFFFF)');
+    }
 
+  };
+  
   const getLanguage = () => {
     switch (embedType) {
       case 'react': return 'jsx';
@@ -421,37 +452,14 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
 
         {/* Customize Tab */}
         {activeTab === 'customize' && (
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
             className="flex flex-col gap-4 sm:gap-6"
           >
-            {/* Position Selector */}
-            <div className="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-100">
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <FiSettings className="text-purple-600 w-5 h-5" /> Widget Position
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                {['bottom-right', 'bottom-left', 'top-right', 'top-left'].map((pos) => (
-                  <motion.button
-                    key={pos}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={() => setPosition(pos)}
-                    className={`p-2 sm:p-3 rounded-lg text-xs sm:text-sm font-medium transition-all text-center ${
-                      position === pos
-                        ? 'bg-gradient-to-r from-purple-600 to-amber-500 text-white shadow-sm'
-                        : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
-                    }`}
-                  >
-                    {pos.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
-            {/* Theme Customizer */}
+           
             <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-md border border-gray-100">
               <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4 sm:mb-5 flex items-center gap-2">
                 <BsFillCollectionFill className="text-purple-600 w-5 h-5" /> Theme Colors
@@ -511,39 +519,40 @@ class _ChatbotWidgetState extends State<ChatbotWidget> {
             </motion.button>
 
             <AnimatePresence>
-              {previewMode && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="w-full max-w-[360px] sm:max-w-[400px] bg-gray-100 rounded-2xl shadow-xl overflow-hidden p-3 sm:p-4 border border-gray-200 relative"
-                >
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-300 rounded-full"></div>
-                  <div className="bg-white rounded-lg overflow-hidden">
-                    <div className="h-8 bg-gradient-to-r from-purple-600 to-amber-500 flex items-center px-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-2 h-2 rounded-full bg-white/30"></div>
-                        <div className="w-2 h-2 rounded-full bg-white/30"></div>
-                        <div className="w-2 h-2 rounded-full bg-white/30"></div>
-                      </div>
-                      <span className="text-white text-xs font-medium ml-2">Chatbot Preview</span>
-                    </div>
-                    <iframe
-                      ref={iframeRef}
-                      src={`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
-                        primary: customTheme.primaryColor,
-                        secondary: customTheme.secondaryColor,
-                        background: customTheme.backgroundColor,
-                        text: customTheme.textColor,
-                        buttonText: customTheme.buttonTextColor,
-                      }))}&position=${position}&preview=true`}
-                      className="w-full h-[500px] sm:h-[600px] border-0"
-                      allowtransparency="true"
-                      title="Chatbot preview"
-                    />
-                  </div>
-                </motion.div>
-              )}
+            {previewMode && (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.95 }}
+    className="w-full max-w-[360px] sm:max-w-[400px] bg-gray-100 rounded-2xl shadow-xl overflow-hidden p-3 sm:p-4 border border-gray-200 relative"
+  >
+    <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-gray-300 rounded-full"></div>
+    <div className="bg-white rounded-lg overflow-hidden">
+      <div className="h-8 bg-gradient-to-r from-purple-600 to-amber-500 flex items-center px-3">
+        <div className="flex items-center gap-1.5">
+          <div className="w-2 h-2 rounded-full bg-white/30"></div>
+          <div className="w-2 h-2 rounded-full bg-white/30"></div>
+          <div className="w-2 h-2 rounded-full bg-white/30"></div>
+        </div>
+        <span className="text-white text-xs font-medium ml-2">Chatbot Preview</span>
+      </div>
+      <iframe
+        ref={iframeRef}
+        key={`${flowId}-${position}`}
+        src={`${process.env.NEXT_PUBLIC_API_BASE}/api/chatbot/${flowId || 'your-flow-id'}/${session?.user?.id || 'your-user-id'}?domain=${encodeURIComponent(websiteDomain || 'your-website.com')}&theme=${encodeURIComponent(JSON.stringify({
+          primary: customTheme.primaryColor,
+          secondary: customTheme.secondaryColor,
+          background: customTheme.backgroundColor,
+          text: customTheme.textColor,
+          buttonText: customTheme.buttonTextColor,
+        }))}&position=${position}&preview=true`}
+        className="w-full h-[500px] sm:h-[600px] border-0"
+        allowtransparency="true"
+        title="Chatbot preview"
+      />
+    </div>
+  </motion.div>
+)}
             </AnimatePresence>
           </motion.div>
         )}
